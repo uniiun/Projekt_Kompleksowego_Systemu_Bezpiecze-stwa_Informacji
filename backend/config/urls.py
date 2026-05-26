@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from accounts.views import CurrentUserView
+from accounts.views import CurrentUserView, UserViewSet
 from documents.views import DepartmentViewSet, DocumentViewSet
 from audit.views import AccessLogViewSet
 
@@ -12,6 +12,7 @@ router = routers.DefaultRouter()
 router.register(r'departments', DepartmentViewSet, basename='department')
 router.register(r'documents', DocumentViewSet, basename='document')
 router.register(r'audit-logs', AccessLogViewSet, basename='audit-log')
+router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

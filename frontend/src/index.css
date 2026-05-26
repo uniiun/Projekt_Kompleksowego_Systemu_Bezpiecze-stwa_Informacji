@@ -1,0 +1,472 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  /* Cyber Dark Color Palette */
+  --bg-deep: #080A14;
+  --bg-card: rgba(17, 24, 43, 0.75);
+  --bg-input: rgba(30, 41, 59, 0.5);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(99, 102, 241, 0.5);
+  
+  --primary: #6366f1;
+  --primary-glow: rgba(99, 102, 241, 0.25);
+  --secondary: #64748b;
+  
+  /* Glowing badges */
+  --color-public: #10b981;
+  --color-public-glow: rgba(16, 185, 129, 0.2);
+  
+  --color-internal: #0ea5e9;
+  --color-internal-glow: rgba(14, 165, 233, 0.2);
+  
+  --color-confidential: #f59e0b;
+  --color-confidential-glow: rgba(245, 158, 11, 0.2);
+  
+  --color-secret: #ef4444;
+  --color-secret-glow: rgba(239, 68, 68, 0.2);
+}
+
+body {
+  font-family: var(--font-family);
+  background: radial-gradient(circle at 50% 0%, #131b31 0%, var(--bg-deep) 70%);
+  background-attachment: fixed;
+  color: #f1f5f9;
+  min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Premium Card (Glassmorphism) */
+.card, .glass-panel {
+  background: var(--bg-card) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  color: #f8fafc !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.card:hover, .glass-panel-hover:hover {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), 0 0 15px rgba(99, 102, 241, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+/* Navigation Overrides */
+.navbar {
+  background: rgba(8, 10, 20, 0.8) !important;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 0;
+}
+
+.navbar-brand {
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(to right, #ffffff, var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-link {
+  font-weight: 500;
+  color: #94a3b8 !important;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: #ffffff !important;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: all 0.2s ease;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::after, .nav-link.active::after {
+  width: 70%;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  padding: 0.5rem 1.25rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 4px 14px 0 var(--primary-glow) !important;
+}
+
+.btn-primary:hover {
+  background-color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.btn-info {
+  background-color: #06b6d4 !important;
+  border-color: #06b6d4 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px 0 rgba(6, 182, 212, 0.2) !important;
+}
+
+.btn-info:hover {
+  background-color: #0891b2 !important;
+  border-color: #0891b2 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px 0 rgba(6, 182, 212, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Forms */
+.form-control, .form-select {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 10px !important;
+  color: #f8fafc !important;
+  padding: 0.65rem 1rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: rgba(30, 41, 59, 0.7) !important;
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.form-control::placeholder {
+  color: #64748b !important;
+}
+
+label {
+  color: #94a3b8;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+/* Glowing Badges & Tags */
+.badge-security {
+  padding: 0.45em 0.85em !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.badge-public {
+  background-color: var(--color-public-glow) !important;
+  color: var(--color-public) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 0 10px var(--color-public-glow);
+}
+
+.badge-internal {
+  background-color: var(--color-internal-glow) !important;
+  color: var(--color-internal) !important;
+  border-color: rgba(14, 165, 233, 0.3) !important;
+  box-shadow: 0 0 10px var(--color-internal-glow);
+}
+
+.badge-confidential {
+  background-color: var(--color-confidential-glow) !important;
+  color: var(--color-confidential) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  box-shadow: 0 0 10px var(--color-confidential-glow);
+}
+
+.badge-secret {
+  background-color: var(--color-secret-glow) !important;
+  color: var(--color-secret) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  box-shadow: 0 0 10px var(--color-secret-glow);
+  animation: pulse-border 2s infinite alternate;
+}
+
+/* User Role Tags */
+.role-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-transform: uppercase;
+}
+
+.role-admin {
+  color: #f43f5e !important;
+  background: rgba(244, 63, 94, 0.1) !important;
+  border-color: rgba(244, 63, 94, 0.2) !important;
+}
+
+.role-manager {
+  color: #fb923c !important;
+  background: rgba(251, 146, 60, 0.1) !important;
+  border-color: rgba(251, 146, 60, 0.2) !important;
+}
+
+.role-employee {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+  border-color: rgba(56, 189, 248, 0.2) !important;
+}
+
+.role-auditor {
+  color: #a78bfa !important;
+  background: rgba(167, 139, 250, 0.1) !important;
+  border-color: rgba(167, 139, 250, 0.2) !important;
+}
+
+/* Table Style Overrides */
+.table {
+  color: #f1f5f9 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.table th {
+  background-color: rgba(8, 10, 20, 0.75) !important;
+  color: #06b6d4 !important; /* Electric Cyan for perfect cybercontrast */
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.75px;
+  padding: 1.1rem 1rem !important;
+}
+
+.table td {
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important; /* Force high contrast white text */
+  padding: 1.1rem 1rem !important;
+  vertical-align: middle;
+}
+
+.table td.small, .table td .small, .table td.font-monospace, .table td .font-monospace {
+  color: #cbd5e1 !important; /* Ensure secondary cells (dates, IDs, IP) are highly legible */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Custom High-Contrast Glowing Badges */
+.badge-status-success {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.5px;
+  padding: 0.45rem 0.85rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3) !important;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.badge-status-danger {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.5px;
+  padding: 0.45rem 0.85rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3) !important;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+/* Custom Action Badge Classes */
+.badge-action-login {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.1);
+}
+
+.badge-action-list {
+  background-color: rgba(100, 116, 139, 0.15) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(100, 116, 139, 0.3) !important;
+}
+
+.badge-action-view {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  color: #818cf8 !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+}
+
+.badge-action-download {
+  background-color: rgba(6, 182, 212, 0.15) !important;
+  color: #22d3ee !important;
+  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+}
+
+.badge-action-create {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.badge-action-update {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.badge-action-delete {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.badge-action-denied {
+  background-color: rgba(239, 68, 68, 0.25) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.15);
+}
+
+
+/* Drop-zone style for upload area */
+.dropzone-area {
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.01);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dropzone-area:hover {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.04);
+}
+
+/* Custom UI Grid Layout */
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+
+/* Header styled underline */
+.section-title {
+  position: relative;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 45px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+/* Keyframe animations */
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+  }
+  100% {
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.4);
+  }
+}
+
+/* Custom Security Utility & Contrast Classes */
+.text-muted {
+  color: #94a3b8 !important; /* Extremely high contrast for dark theme */
+}
+
+.text-white-50 {
+  color: rgba(255, 255, 255, 0.6) !important; /* Perfect contrast for descriptions */
+}
+
+.opacity-10 { opacity: 0.1 !important; }
+.opacity-20 { opacity: 0.2 !important; }
+.opacity-30 { opacity: 0.3 !important; }
+.opacity-40 { opacity: 0.4 !important; }
+.opacity-50 { opacity: 0.5 !important; }
+.block { display: block !important; }
+.italic { font-style: italic !important; }
+.font-monospace { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important; }
+.tracking-wide { letter-spacing: 0.5px !important; }
+.tracking-wider { letter-spacing: 1.2px !important; }
+.fw-extrabold { font-weight: 800 !important; }
+
+/* Security Diagnostic Scanner Line */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+  transition: all 0.6s ease;
+}
+
+.card:hover::after {
+  left: 100%;
+  transition: all 1.2s ease-in-out;
+}
+
