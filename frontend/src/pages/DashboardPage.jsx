@@ -113,20 +113,20 @@ const DashboardPage = () => {
   return (
     <div className="pb-4">
       {/* Welcome Banner */}
-      <div className="card p-4 border border-light border-opacity-10 mb-4 text-white position-relative" 
-           style={{ 
+      <div className="card p-4 border border-light border-opacity-10 mb-4 text-white position-relative"
+           style={{
              background: 'linear-gradient(135deg, rgba(20, 27, 45, 0.65) 0%, rgba(10, 15, 28, 0.85) 100%)',
              overflow: 'hidden'
            }}>
         {/* Subtle, properly positioned lock background watermark */}
-        <div 
+        <div
           className="position-absolute d-none d-md-block"
-          style={{ 
-            right: '40px', 
-            top: '50%', 
-            transform: 'translateY(-50%)', 
-            opacity: 0.06, 
-            pointerEvents: 'none' 
+          style={{
+            right: '40px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            opacity: 0.06,
+            pointerEvents: 'none'
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-primary">
@@ -242,7 +242,7 @@ const DashboardPage = () => {
               </svg>
               Poziom Uprawnień Systemowych (RBAC)
             </h5>
-            
+
             <p className="text-white-50 small mb-4">
               Twoja rola <strong>{getRoleDisplay(role)}</strong> posiada ściśle zdefiniowany zestaw uprawnień w modelu autoryzacji systemu:
             </p>
@@ -250,8 +250,8 @@ const DashboardPage = () => {
             <div className="d-flex flex-column gap-3">
               {permissions.map((perm, idx) => (
                 <div key={idx} className="d-flex align-items-start gap-3">
-                  <span className={`p-1 rounded-circle mt-0.5 d-flex align-items-center justify-content-center`} 
-                        style={{ 
+                  <span className={`p-1 rounded-circle mt-0.5 d-flex align-items-center justify-content-center`}
+                        style={{
                           backgroundColor: perm.allowed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                           color: perm.allowed ? '#10b981' : '#ef4444',
                           border: `1px solid ${perm.allowed ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
@@ -287,7 +287,7 @@ const DashboardPage = () => {
               </svg>
               Szybkie Operacje
             </h5>
-            
+
             <div className="d-flex flex-column gap-3 mt-2">
               <Link to="/documents" className="btn btn-outline-light text-start p-3 d-flex align-items-center gap-3 glass-panel-hover" style={{ borderRadius: '12px !important' }}>
                 <div className="p-2 bg-info bg-opacity-10 text-info rounded-3">
@@ -343,7 +343,7 @@ const DashboardPage = () => {
           <span className="d-inline-block rounded-circle bg-success" style={{ width: '8px', height: '8px', boxShadow: '0 0 8px #10b981', animation: 'blink 1.5s infinite' }}></span>
           NOD-ENFORCER: ONLINE
         </div>
-        
+
         <h5 className="text-white fw-bold d-flex align-items-center gap-2 mb-3 border-bottom border-light border-opacity-10 pb-3">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" className="me-1">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>

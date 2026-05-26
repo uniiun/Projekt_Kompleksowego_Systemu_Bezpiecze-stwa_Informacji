@@ -5,7 +5,7 @@ const DocumentCard = ({ doc, me }) => {
   // Determine role permissions for editing
   const isManager = me?.profile?.role === 'MANAGER';
   const isAdmin = me?.profile?.role === 'ADMIN';
-  
+
   // A manager can edit documents belonging to their own department
   const canEdit = isAdmin || (isManager && String(doc.department) === String(me?.profile?.department));
 
@@ -43,7 +43,7 @@ const DocumentCard = ({ doc, me }) => {
         <h5 className="card-title text-white fw-bold mb-2 text-truncate" title={doc.title}>
           {doc.title}
         </h5>
-        
+
         <p className="card-text text-muted small flex-grow-1 mb-4" style={{ display: '-webkit-box', WebkitLineClamp: '3', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {doc.description || 'Brak opisu dokumentu.'}
         </p>

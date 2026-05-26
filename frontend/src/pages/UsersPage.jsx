@@ -46,7 +46,7 @@ const UsersPage = () => {
   return (
     <div>
       <h2 className="section-title text-white">Książka Adresowa Operatorów</h2>
-      
+
       {error ? (
         <div className="alert alert-danger">{error}</div>
       ) : (

@@ -47,10 +47,10 @@ const DocumentsPage = () => {
 
   // Client-side filtration logic
   const filteredDocs = documents.filter(doc => {
-    const matchesText = 
+    const matchesText =
       doc.title.toLowerCase().includes(searchText.toLowerCase()) ||
       (doc.description || '').toLowerCase().includes(searchText.toLowerCase());
-    
+
     const matchesDept = selectedDept === '' || String(doc.department) === String(selectedDept);
     const matchesConf = selectedConf === '' || doc.confidentiality_level === selectedConf;
 

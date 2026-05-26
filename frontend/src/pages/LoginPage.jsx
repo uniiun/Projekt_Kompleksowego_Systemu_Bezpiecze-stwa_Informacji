@@ -31,7 +31,7 @@ const LoginPage = () => {
   const handleQuickLogin = (demoEmail, demoPassword) => {
     setEmail(demoEmail);
     setPassword(demoPassword);
-    
+
     // Auto-submit after a slight delay to let user see the filled data
     setLoading(true);
     setError('');
@@ -91,30 +91,30 @@ const LoginPage = () => {
             <form onSubmit={handleLogin}>
               <div className="mb-3">
                 <label className="small text-uppercase tracking-wider font-monospace">E-mail identyfikacyjny</label>
-                <input 
-                  type="email" 
-                  value={email} 
-                  onChange={e => setEmail(e.target.value)} 
-                  className="form-control" 
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="form-control"
                   placeholder="nazwa@example.com"
-                  required 
+                  required
                   disabled={loading}
                 />
               </div>
               <div className="mb-4">
                 <label className="small text-uppercase tracking-wider font-monospace">Klucz dostępu (Hasło)</label>
-                <input 
-                  type="password" 
-                  value={password} 
-                  onChange={e => setPassword(e.target.value)} 
-                  className="form-control" 
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="form-control"
                   placeholder="••••••••"
-                  required 
+                  required
                   disabled={loading}
                 />
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn btn-primary w-100 py-2.5 d-flex align-items-center justify-content-center gap-2"
                 disabled={loading}
               >
@@ -151,7 +151,7 @@ const LoginPage = () => {
               Konsola Prezentacyjna
             </h5>
             <p className="text-muted small mb-3">Kliknij profil testowy, aby natychmiast zalogować się z predefiniowanymi uprawnieniami (RBAC):</p>
-            
+
             <div className="d-flex flex-column gap-2">
               {demoAccounts.map((account) => (
                 <button
@@ -159,7 +159,7 @@ const LoginPage = () => {
                   onClick={() => handleQuickLogin(account.email, account.pass)}
                   disabled={loading}
                   className="btn btn-sm btn-outline-light text-start p-2.5 d-flex align-items-center justify-content-between"
-                  style={{ 
+                  style={{
                     border: '1px solid rgba(255,255,255,0.06)',
                     background: 'rgba(255,255,255,0.02)',
                     transition: 'all 0.2s ease'
@@ -169,9 +169,9 @@ const LoginPage = () => {
                     <span className="text-white fw-bold small block">{account.label}</span>
                     <span className="d-block text-muted" style={{ fontSize: '0.7rem', fontFamily: 'monospace' }}>{account.email}</span>
                   </div>
-                  <span className="role-tag" style={{ 
-                    color: account.color, 
-                    backgroundColor: `${account.color}15`, 
+                  <span className="role-tag" style={{
+                    color: account.color,
+                    backgroundColor: `${account.color}15`,
                     borderColor: `${account.color}25`
                   }}>
                     {account.role}

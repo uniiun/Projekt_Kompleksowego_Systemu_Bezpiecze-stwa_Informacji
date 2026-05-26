@@ -64,5 +64,5 @@ repos:
     rev: v2.14
     hooks:
       - id: vulture
-        args: [--min-confidence, "80", .]
+        args: [--min-confidence, "80", backend, run.py]
         exclude: ^\.venv/

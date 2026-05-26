@@ -6,7 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 const EditDocumentPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [me, setMe] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [users, setUsers] = useState([]);
@@ -56,7 +56,7 @@ const EditDocumentPage = () => {
       setDepartment(doc.department);
       setConfidentialityLevel(doc.confidentiality_level);
       setAllowedUsers(doc.allowed_users || []);
-      
+
       if (doc.file) {
         // Extract filename from full URL path
         setExistingFileName(doc.file.split('/').pop());
@@ -108,7 +108,7 @@ const EditDocumentPage = () => {
       formData.append('description', description);
       formData.append('department', department);
       formData.append('confidentiality_level', confidentialityLevel);
-      
+
       if (file) {
         formData.append('file', file);
       }
@@ -116,11 +116,11 @@ const EditDocumentPage = () => {
       // Append many-to-many allowed_users
       // If empty array, we can send it as blank or empty string, let's append all
       if (allowedUsers.length === 0) {
-        // DRF requires allowed_users as list, sending empty can be represented by blank or we don't append. 
-        // DRF serializer with PUT will clear it if we don't append anything. Wait, to let DRF clear it, 
-        // we can set multiple values or Django will clear it if allowed_users is missing in request data, 
+        // DRF requires allowed_users as list, sending empty can be represented by blank or we don't append.
+        // DRF serializer with PUT will clear it if we don't append anything. Wait, to let DRF clear it,
+        // we can set multiple values or Django will clear it if allowed_users is missing in request data,
         // but with multipart parser sometimes we send empty.
-        // Actually, if we send PUT and allowed_users is empty, we must send empty fields. 
+        // Actually, if we send PUT and allowed_users is empty, we must send empty fields.
         // DRF multipart parses empty allowed_users nicely or we send them.
       } else {
         allowedUsers.forEach(userId => {
@@ -202,11 +202,11 @@ const EditDocumentPage = () => {
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="small text-uppercase tracking-wider font-monospace text-white">Tytuł dokumentu</label>
-                <input 
-                  type="text" 
-                  value={title} 
-                  onChange={e => setTitle(e.target.value)} 
-                  className="form-control" 
+                <input
+                  type="text"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  className="form-control"
                   required
                   disabled={submitting}
                 />
@@ -214,10 +214,10 @@ const EditDocumentPage = () => {
 
               <div className="mb-3">
                 <label className="small text-uppercase tracking-wider font-monospace text-white">Opis / Streszczenie</label>
-                <textarea 
-                  value={description} 
-                  onChange={e => setDescription(e.target.value)} 
-                  className="form-control" 
+                <textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  className="form-control"
                   rows="3"
                   disabled={submitting}
                 />
@@ -228,10 +228,10 @@ const EditDocumentPage = () => {
                   <label className="small text-uppercase tracking-wider font-monospace text-white">Właściciel Działowy</label>
                   {isManager ? (
                     <div className="position-relative">
-                      <select 
-                        value={department} 
-                        disabled 
-                        className="form-select border-opacity-30" 
+                      <select
+                        value={department}
+                        disabled
+                        className="form-select border-opacity-30"
                         style={{ opacity: 0.8, cursor: 'not-allowed' }}
                       >
                         {departments.map(dept => (
@@ -243,9 +243,9 @@ const EditDocumentPage = () => {
                       </small>
                     </div>
                   ) : (
-                    <select 
-                      value={department} 
-                      onChange={e => setDepartment(e.target.value)} 
+                    <select
+                      value={department}
+                      onChange={e => setDepartment(e.target.value)}
                       className="form-select"
                       required
                       disabled={submitting}
@@ -259,9 +259,9 @@ const EditDocumentPage = () => {
 
                 <div className="col-md-6">
                   <label className="small text-uppercase tracking-wider font-monospace text-white">Poziom Poufności</label>
-                  <select 
-                    value={confidentialityLevel} 
-                    onChange={e => setConfidentialityLevel(e.target.value)} 
+                  <select
+                    value={confidentialityLevel}
+                    onChange={e => setConfidentialityLevel(e.target.value)}
                     className="form-select"
                     required
                     disabled={submitting}
@@ -278,10 +278,10 @@ const EditDocumentPage = () => {
               <div className="mb-4">
                 <label className="small text-uppercase tracking-wider font-monospace text-white d-block">Zmień Załącznik (Opcjonalnie)</label>
                 <div className="dropzone-area">
-                  <input 
-                    type="file" 
-                    id="fileUpload" 
-                    onChange={handleFileChange} 
+                  <input
+                    type="file"
+                    id="fileUpload"
+                    onChange={handleFileChange}
                     className="d-none"
                     disabled={submitting}
                   />
@@ -327,18 +327,18 @@ const EditDocumentPage = () => {
                         onClick={() => handleUserToggle(u.id)}
                         disabled={submitting}
                         className={`btn btn-sm d-flex align-items-center gap-1.5 py-1.5 px-3 border ${
-                          isSelected 
-                            ? 'bg-primary border-primary text-white shadow-sm' 
+                          isSelected
+                            ? 'bg-primary border-primary text-white shadow-sm'
                             : 'bg-light bg-opacity-5 border-light border-opacity-10 text-muted'
                         }`}
                         style={{ borderRadius: '8px !important' }}
                       >
                         <span className="small">{isSelected ? '✓' : '+'}</span>
                         <span className="small">{u.username}</span>
-                        <span className="badge" style={{ 
-                          fontSize: '0.62rem', 
-                          background: 'rgba(255,255,255,0.1)', 
-                          color: isSelected ? '#ffffff' : '#94a3b8' 
+                        <span className="badge" style={{
+                          fontSize: '0.62rem',
+                          background: 'rgba(255,255,255,0.1)',
+                          color: isSelected ? '#ffffff' : '#94a3b8'
                         }}>
                           {u.profile?.role}
                         </span>
@@ -349,8 +349,8 @@ const EditDocumentPage = () => {
               </div>
 
               <div className="d-flex gap-3 mt-4">
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="btn btn-primary px-4 py-2.5 d-flex align-items-center gap-2 shadow"
                   disabled={submitting}
                 >

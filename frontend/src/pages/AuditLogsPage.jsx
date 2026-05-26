@@ -6,7 +6,7 @@ const AuditLogsPage = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Filtering & Reporting states
   const [searchUser, setSearchUser] = useState('');
   const [selectedAction, setSelectedAction] = useState('');
@@ -63,10 +63,10 @@ const AuditLogsPage = () => {
   const filteredLogs = logs.filter(log => {
     // 1. User search
     const matchesUser = (log.user_name || '').toLowerCase().includes(searchUser.toLowerCase());
-    
+
     // 2. Action search
     const matchesAction = selectedAction === '' || log.action === selectedAction;
-    
+
     // 3. Status search
     let matchesStatus = true;
     if (selectedStatus === 'success') matchesStatus = log.success === true;
@@ -74,7 +74,7 @@ const AuditLogsPage = () => {
 
     // 4. Date range search
     const logDate = new Date(log.created_at);
-    
+
     let matchesStartDate = true;
     if (startDate) {
       const start = new Date(startDate);
@@ -105,7 +105,7 @@ const AuditLogsPage = () => {
     const today = new Date();
     const start = new Date();
     start.setDate(today.getDate() - days);
-    
+
     // Format to YYYY-MM-DD
     const formatDate = (date) => {
       const y = date.getFullYear();
@@ -146,7 +146,7 @@ const AuditLogsPage = () => {
     // Prepend UTF-8 BOM for perfect Excel compatibility with Polish letters
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    
+
     // Trigger download
     const link = document.createElement('a');
     link.href = url;
@@ -165,8 +165,8 @@ const AuditLogsPage = () => {
         <div>
           <h2 className="section-title text-white mb-0">Rejestr Bezpieczeństwa & Raportowanie</h2>
         </div>
-        <button 
-          onClick={handleExportCSV} 
+        <button
+          onClick={handleExportCSV}
           className="btn btn-info d-flex align-items-center gap-2 shadow"
           style={{ background: 'linear-gradient(90deg, #06b6d4, #0891b2) !important' }}
         >
@@ -203,20 +203,20 @@ const AuditLogsPage = () => {
             <div className="row g-3 align-items-end mb-3">
               <div className="col-lg-4 col-md-12">
                 <label className="small text-uppercase tracking-wider font-monospace text-info fw-bold">Szukaj operatora</label>
-                <input 
-                  type="text" 
-                  value={searchUser} 
-                  onChange={e => setSearchUser(e.target.value)} 
-                  className="form-control" 
+                <input
+                  type="text"
+                  value={searchUser}
+                  onChange={e => setSearchUser(e.target.value)}
+                  className="form-control"
                   placeholder="Wpisz e-mail lub login..."
                 />
               </div>
 
               <div className="col-lg-4 col-md-6">
                 <label className="small text-uppercase tracking-wider font-monospace text-info fw-bold">Kategoria Zdarzenia</label>
-                <select 
-                  value={selectedAction} 
-                  onChange={e => setSelectedAction(e.target.value)} 
+                <select
+                  value={selectedAction}
+                  onChange={e => setSelectedAction(e.target.value)}
                   className="form-select"
                 >
                   <option value="">Wszystkie operacje</option>
@@ -233,9 +233,9 @@ const AuditLogsPage = () => {
 
               <div className="col-lg-4 col-md-6">
                 <label className="small text-uppercase tracking-wider font-monospace text-info fw-bold">Status Bezpieczeństwa</label>
-                <select 
-                  value={selectedStatus} 
-                  onChange={e => setSelectedStatus(e.target.value)} 
+                <select
+                  value={selectedStatus}
+                  onChange={e => setSelectedStatus(e.target.value)}
                   className="form-select"
                 >
                   <option value="">Wszystkie zdarzenia</option>
@@ -249,20 +249,20 @@ const AuditLogsPage = () => {
             <div className="row g-3 align-items-end pt-2 border-top border-light border-opacity-5">
               <div className="col-lg-3 col-md-6">
                 <label className="small text-uppercase tracking-wider font-monospace text-info fw-bold">Data początkowa (Od)</label>
-                <input 
-                  type="date" 
-                  value={startDate} 
-                  onChange={e => setStartDate(e.target.value)} 
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={e => setStartDate(e.target.value)}
                   className="form-control font-monospace"
                 />
               </div>
 
               <div className="col-lg-3 col-md-6">
                 <label className="small text-uppercase tracking-wider font-monospace text-info fw-bold">Data końcowa (Do)</label>
-                <input 
-                  type="date" 
-                  value={endDate} 
-                  onChange={e => setEndDate(e.target.value)} 
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={e => setEndDate(e.target.value)}
                   className="form-control font-monospace"
                 />
               </div>
@@ -283,8 +283,8 @@ const AuditLogsPage = () => {
               </div>
 
               <div className="col-lg-2 col-md-12">
-                <button 
-                  onClick={handleResetFilters} 
+                <button
+                  onClick={handleResetFilters}
                   className="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-1 py-2 font-monospace uppercase tracking-wider small"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -349,7 +349,7 @@ const AuditLogsPage = () => {
                       <td className="font-monospace text-muted small">{log.ip_address || 'Nieznane'}</td>
                     </tr>
                   ))}
-                  
+
                   {filteredLogs.length === 0 && (
                     <tr>
                       <td colSpan="7" className="text-center p-5 text-muted">

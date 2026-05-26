@@ -12,7 +12,7 @@ const DocumentDetailsPage = () => {
   const [allDocs, setAllDocs] = useState([]); // Used for security testing
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Security simulation states
   const [testResult, setTestResult] = useState(null); // { success: boolean, message: string }
 
@@ -68,7 +68,7 @@ const DocumentDetailsPage = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
+
         setTimeout(refreshLogs, 1000);
       } else {
         alert("Brak pliku do pobrania w tym dokumencie.");
@@ -294,7 +294,7 @@ const DocumentDetailsPage = () => {
               </svg>
               Dziennik Audytu dla Dokumentu (Historia Operacji)
             </h5>
-            
+
             <div className="table-responsive">
               <table className="table table-striped table-hover mb-0">
                 <thead>
@@ -347,7 +347,7 @@ const DocumentDetailsPage = () => {
             </svg>
             Dozwolona Grupa Użytkowników
           </h5>
-          
+
           <div className="mb-2">
             <span className="text-muted small">Uprawnienie ogólne:</span>
             <div className="fw-bold text-white small mt-0.5">
@@ -357,7 +357,7 @@ const DocumentDetailsPage = () => {
               {doc.confidentiality_level === 'SECRET' && 'Wyłącznie Administrator oraz przypisani indywidualnie'}
             </div>
           </div>
-          
+
           <div className="mt-3">
             <span className="text-muted small">Użytkownicy z dostępem indywidualnym:</span>
             <div className="d-flex flex-wrap gap-1.5 mt-1.5">
@@ -382,7 +382,7 @@ const DocumentDetailsPage = () => {
             </svg>
             Konsola Testowania Zabezpieczeń
           </h5>
-          
+
           <p className="text-muted small mb-3">
             Wywołaj bezpośrednie żądanie API do dokumentów o różnych identyfikatorach, aby zweryfikować czy system blokuje nieautoryzowany dostęp i zapisuje próby naruszeń:
           </p>
@@ -403,8 +403,8 @@ const DocumentDetailsPage = () => {
 
           {testResult && (
             <div className={`p-3 rounded-3 small border ${
-              testResult.success 
-                ? 'bg-success bg-opacity-10 border-success border-opacity-25 text-success' 
+              testResult.success
+                ? 'bg-success bg-opacity-10 border-success border-opacity-25 text-success'
                 : 'bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger'
             }`} style={{ animation: 'fadeIn 0.3s ease' }}>
               <div className="fw-bold mb-1">{testResult.success ? '✓ Sukces autoryzacji' : '🛑 Naruszenie zablokowane'}</div>
@@ -413,7 +413,7 @@ const DocumentDetailsPage = () => {
           )}
         </div>
       </div>
-      
+
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(5px); }
