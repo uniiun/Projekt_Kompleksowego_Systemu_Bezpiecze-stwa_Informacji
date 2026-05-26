@@ -26,7 +26,8 @@ SECRET_KEY = "django-insecure-7%cr+z*c)h-gd=!o*vt_u_oy9&#7zepx!jhzithvg3z0sn6acn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS: list[str] = []
+# Zezwolenie na wszystkie hosty w celach deweloperskich i zdalnego dostepu na Proxmox
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
