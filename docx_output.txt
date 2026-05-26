@@ -1,0 +1,335 @@
+Projekt systemu kontroli dostępu do zasobów informacyjnych
+Logika biznesowa, logika systemowa i koncepcja realizacji w Pythonie
+Element
+Założenie
+Nazwa robocza systemu
+SecureDocs / Kontrola Dostępu do Zasobów Informacyjnych
+Technologia główna
+Python, Django, Django REST Framework
+Frontend
+React + Bootstrap albo prostszy wariant: Django Templates + Bootstrap
+Baza danych
+SQLite na start, PostgreSQL jako wariant docelowy
+Model kontroli dostępu
+RBAC, rozszerzony o dział i poziom poufności dokumentu
+Repozytorium
+Jedno prywatne repozytorium GitHub: backend / frontend / docs
+Spis treści
+1. Cel i opis projektu
+2. Kontekst biznesowy
+3. Użytkownicy i role
+4. Zasoby informacyjne
+5. Reguły biznesowe
+6. Logika systemowa
+7. Przepływy działania systemu
+8. Model danych
+9. API i integracja frontendu z backendem
+10. Moduły aplikacji
+11. Podział pracy zespołu
+12. Scenariusze testowe
+13. Zakres MVP i rozszerzenia
+14. Instrukcja wykorzystania dokumentu w Antigravity
+1. Cel i opis projektu
+Celem projektu jest zaprojektowanie i wykonanie aplikacji webowej, która kontroluje dostęp użytkowników do zasobów informacyjnych organizacji. System ma umożliwiać przechowywanie dokumentów, przypisywanie ich do działów, oznaczanie poziomu poufności oraz sprawdzanie, czy dany użytkownik może wykonać konkretną operację, np. odczyt, pobranie, dodanie, edycję lub usunięcie dokumentu.
+Projekt realizuje temat: „Projekt systemu kontroli dostępu do zasobów informacyjnych z wykorzystaniem wybranej technologii”. Wybraną technologią jest Python z frameworkiem Django oraz Django REST Framework. System może być zrealizowany jako aplikacja z osobnym frontendem React albo jako prostsza aplikacja Django z szablonami HTML. Dla pracy zespołowej zalecany jest wariant Django REST API + React.
+System pokazuje praktyczne zastosowanie kontroli dostępu do informacji.
+Użytkownicy mają różne role oraz różne poziomy uprawnień.
+Zasoby są przypisane do działów oraz poziomów poufności.
+Każda istotna operacja jest zapisywana w dzienniku audytu.
+Administrator ma możliwość zarządzania użytkownikami, dokumentami i logami.
+2. Kontekst biznesowy
+Przykładowym odbiorcą systemu jest firma lub instytucja posiadająca kilka działów organizacyjnych. Każdy dział wytwarza i przechowuje dokumenty, które nie zawsze powinny być widoczne dla wszystkich pracowników. System ma ograniczać ryzyko nieuprawnionego dostępu do informacji.
+Dział
+Przykładowe zasoby
+IT
+Procedury bezpieczeństwa, dokumentacja techniczna, instrukcje konfiguracji
+HR
+Regulaminy, dane pracownicze, dokumenty kadrowe
+Finanse
+Raporty finansowe, zestawienia kosztów, budżety
+Zarząd
+Strategie, decyzje zarządcze, dokumenty tajne
+Sprzedaż
+Oferty, raporty sprzedaży, bazy klientów testowe
+Problem biznesowy polega na tym, że użytkownicy organizacji powinni widzieć tylko te dane, które są im potrzebne do pracy. Pracownik działu HR nie powinien widzieć raportów finansowych, zwykły pracownik nie powinien usuwać dokumentów, a audytor powinien mieć dostęp głównie do odczytu i historii operacji.
+3. Użytkownicy i role
+Rola
+Opis biznesowy
+Najważniejsze uprawnienia
+Administrator
+Osoba zarządzająca całym systemem
+Pełny dostęp, zarządzanie użytkownikami, działami, dokumentami i logami
+Menedżer
+Kierownik działu odpowiedzialny za dokumenty swojego działu
+Odczyt, dodawanie i edycja dokumentów własnego działu
+Pracownik
+Standardowy użytkownik organizacji
+Odczyt dokumentów publicznych i wewnętrznych swojego działu
+Audytor
+Osoba kontrolująca zgodność i historię operacji
+Odczyt wybranych dokumentów i dostęp do logów, bez edycji
+Role są podstawą mechanizmu RBAC, czyli Role-Based Access Control. W systemie można dodatkowo sprawdzać dział użytkownika oraz poziom poufności dokumentu. Dzięki temu mechanizm nie jest tylko prostym podziałem na role, ale uwzględnia też kontekst biznesowy.
+4. Zasoby informacyjne
+Głównym zasobem informacyjnym w systemie jest dokument. Dokument może reprezentować plik PDF, plik tekstowy, raport, procedurę lub wpis informacyjny. Każdy dokument ma właściciela, dział, poziom poufności oraz historię dostępu.
+Poziom poufności
+Znaczenie
+Przykład
+PUBLIC
+Dokument dostępny dla wszystkich zalogowanych użytkowników
+Regulamin pracy
+INTERNAL
+Dokument wewnętrzny dostępny w ramach organizacji lub działu
+Instrukcja bezpieczeństwa IT
+CONFIDENTIAL
+Dokument poufny dostępny dla menedżerów, administratora lub wskazanych osób
+Raport finansowy Q1
+SECRET
+Dokument tajny dostępny tylko dla administratora lub indywidualnie uprawnionych osób
+Strategia zarządu
+Każdy dokument ma tytuł, opis, plik, dział, poziom poufności, autora i daty utworzenia oraz modyfikacji.
+Dokument może mieć przypisanych użytkowników z indywidualnym dostępem.
+System nie pokazuje dokumentów, do których użytkownik nie ma prawa dostępu.
+Próba wejścia bezpośrednim linkiem do zakazanego dokumentu kończy się odmową dostępu.
+5. Reguły biznesowe
+Nr
+Reguła biznesowa
+RB-01
+Użytkownik niezalogowany nie ma dostępu do zasobów systemu.
+RB-02
+Administrator ma pełny dostęp do wszystkich dokumentów, działów, użytkowników i logów.
+RB-03
+Menedżer ma dostęp do dokumentów przypisanych do jego działu.
+RB-04
+Pracownik widzi dokumenty publiczne oraz dokumenty wewnętrzne swojego działu.
+RB-05
+Audytor ma dostęp tylko do odczytu i do historii operacji.
+RB-06
+Dokumenty SECRET są dostępne tylko dla administratora lub użytkowników z indywidualnym dostępem.
+RB-07
+Każda próba dostępu, także nieudana, jest zapisywana w logach audytu.
+RB-08
+Użytkownik nie może wykonać operacji, której nie przewiduje jego rola.
+RB-09
+Menedżer nie może zarządzać użytkownikami ani rolami.
+RB-10
+Usuwanie dokumentów jest zarezerwowane dla administratora albo może być opcjonalnie ograniczone do administratora.
+6. Logika systemowa
+Logika systemowa opisuje, jak aplikacja podejmuje decyzję o przyznaniu albo odmowie dostępu. Najważniejsze jest to, że frontend nie może sam decydować o bezpieczeństwie. Frontend może ukrywać przyciski, ale ostateczna kontrola zawsze musi znajdować się po stronie backendu.
+6.1. Algorytm decyzji dostępowej
+Sprawdź, czy użytkownik jest zalogowany.
+Pobierz rolę użytkownika oraz przypisany dział.
+Pobierz metadane dokumentu: dział, poziom poufności, autora i listę użytkowników z indywidualnym dostępem.
+Jeżeli użytkownik jest administratorem, przyznaj dostęp.
+Jeżeli dokument ma poziom PUBLIC, przyznaj dostęp do odczytu zalogowanym użytkownikom.
+Jeżeli dokument należy do działu użytkownika i poziom poufności pozwala na dostęp dla jego roli, przyznaj dostęp.
+Jeżeli użytkownik znajduje się na liście indywidualnego dostępu, przyznaj dostęp.
+W przeciwnym wypadku odmów dostępu, zwróć błąd 403 i zapisz zdarzenie w logach.
+6.2. Pseudokod kontroli dostępu
+def can_access_document(user, document, action):    if not user.is_authenticated:        return False    if user.role == "ADMIN":        return True    if action in ["DELETE", "MANAGE_USERS"]:        return False    if document.confidentiality_level == "PUBLIC" and action == "VIEW":        return True    if user in document.allowed_users.all():        return True    if user.role == "MANAGER" and user.department == document.department:        return action in ["VIEW", "DOWNLOAD", "CREATE", "UPDATE"]    if user.role == "EMPLOYEE" and user.department == document.department:        return document.confidentiality_level in ["PUBLIC", "INTERNAL"] and action in ["VIEW", "DOWNLOAD"]    if user.role == "AUDITOR":        return action in ["VIEW", "DOWNLOAD", "VIEW_LOGS"]    return False
+7. Przepływy działania systemu
+7.1. Logowanie użytkownika
+Użytkownik otwiera aplikację i widzi formularz logowania.
+Wpisuje e-mail oraz hasło.
+Frontend wysyła dane do endpointu logowania backendu.
+Backend sprawdza poprawność danych.
+Po poprawnym logowaniu backend zwraca token JWT lub tworzy sesję.
+Frontend zapisuje token i przekierowuje użytkownika do panelu głównego.
+System pokazuje funkcje zgodne z rolą użytkownika.
+7.2. Wyświetlenie listy dokumentów
+Użytkownik przechodzi do zakładki Dokumenty.
+Frontend wysyła zapytanie GET /api/documents/.
+Backend rozpoznaje użytkownika na podstawie tokena.
+Backend filtruje dokumenty według roli, działu i poziomu poufności.
+Frontend otrzymuje tylko dokumenty, które użytkownik ma prawo widzieć.
+Operacja odczytu listy może zostać zapisana w logach jako VIEW_LIST.
+7.3. Próba nieautoryzowanego dostępu
+Użytkownik próbuje wejść w adres szczegółów dokumentu, którego nie powinien widzieć.
+Frontend wysyła zapytanie GET /api/documents/{id}/.
+Backend wykonuje pełną kontrolę dostępu.
+Jeżeli użytkownik nie spełnia reguł, backend zwraca 403 Forbidden.
+System zapisuje w AccessLog zdarzenie ACCESS_DENIED.
+Frontend pokazuje komunikat: Brak uprawnień do tego zasobu.
+7.4. Dodanie dokumentu przez menedżera
+Menedżer wybiera opcję Dodaj dokument.
+Wypełnia tytuł, opis, dział, poziom poufności i opcjonalnie dodaje plik.
+Backend sprawdza, czy menedżer może dodawać dokument do wskazanego działu.
+Jeśli tak, dokument zostaje zapisany w bazie.
+System zapisuje log CREATE_DOCUMENT.
+Nowy dokument pojawia się na liście uprawnionych użytkowników.
+8. Model danych
+Model danych powinien być prosty, ale wystarczający do pokazania kontroli dostępu. Poniższy model można bezpośrednio przenieść do aplikacji Django.
+Encja
+Najważniejsze pola
+Opis
+User/Profile
+id, email, first_name, last_name, role, department, is_active
+Użytkownik systemu i jego rola biznesowa
+Department
+id, name, description
+Dział organizacji
+Document
+id, title, description, file, department, confidentiality_level, created_by, created_at, updated_at
+Zasób informacyjny
+DocumentPermission
+id, user, document, permission_type
+Indywidualne uprawnienie do dokumentu
+AccessLog
+id, user, document, action, success, ip_address, timestamp
+Historia operacji i prób dostępu
+8.1. Relacje
+Użytkownik należy do jednego działu.
+Dokument należy do jednego działu.
+Dokument ma jednego autora, ale wielu użytkowników może mieć indywidualny dostęp.
+AccessLog może wskazywać użytkownika i dokument, którego dotyczyła operacja.
+Department łączy użytkowników i dokumenty w logice dostępu.
+9. API i integracja frontendu z backendem
+Backend powinien udostępniać REST API. Dzięki temu frontend może być tworzony równolegle na mockowanych danych, a później podłączony do prawdziwych endpointów.
+Metoda
+Endpoint
+Opis
+Dostęp
+POST
+/api/auth/login/
+Logowanie użytkownika
+Publiczny
+POST
+/api/auth/register/
+Rejestracja lub utworzenie użytkownika
+Admin / opcjonalnie publiczny
+GET
+/api/me/
+Dane zalogowanego użytkownika
+Zalogowany
+GET
+/api/documents/
+Lista dokumentów widocznych dla użytkownika
+Zalogowany
+POST
+/api/documents/
+Dodanie dokumentu
+Admin, Manager
+GET
+/api/documents/{id}/
+Szczegóły dokumentu
+Według uprawnień
+PUT
+/api/documents/{id}/
+Edycja dokumentu
+Admin, Manager działu
+DELETE
+/api/documents/{id}/
+Usunięcie dokumentu
+Admin
+GET
+/api/documents/{id}/download/
+Pobranie pliku
+Według uprawnień
+GET
+/api/audit-logs/
+Historia operacji
+Admin, Auditor
+9.1. Przykładowy kontrakt odpowiedzi dokumentu
+{  "id": 1,  "title": "Raport finansowy Q1",  "description": "Raport kwartalny działu finansów",  "department": "Finanse",  "confidentiality_level": "CONFIDENTIAL",  "created_by": "manager.finanse@example.com",  "created_at": "2026-01-20T12:00:00"}
+10. Moduły aplikacji
+Moduł
+Odpowiedzialność
+Przykładowe pliki w Django
+accounts
+Logowanie, użytkownicy, role, profile
+models.py, serializers.py, views.py, permissions.py
+documents
+Dokumenty, pliki, poziomy poufności, filtrowanie
+models.py, serializers.py, views.py, permissions.py
+audit
+Logi dostępu i historia operacji
+models.py, serializers.py, views.py
+frontend
+Widoki użytkownika i komunikacja z API
+LoginPage, DashboardPage, DocumentsPage
+docs
+Dokumentacja, kontrakt API, scenariusze testowe
+PROJECT_SCOPE.md, API_CONTRACT.md, TEST_SCENARIOS.md
+10.1. Proponowana struktura repozytorium
+kontrola_dostepu_do_zasobow_informacyjnych/├── backend/│   ├── manage.py│   ├── requirements.txt│   ├── config/│   ├── accounts/│   ├── documents/│   └── audit/├── frontend/│   ├── package.json│   └── src/├── docs/│   ├── PROJECT_SCOPE.md│   ├── API_CONTRACT.md│   ├── DATABASE_MODEL.md│   └── TEST_SCENARIOS.md└── README.md
+11. Podział pracy zespołu
+Osoba
+Zakres
+Konkretne zadania
+Osoba 1 - Backend
+Django, baza danych, API
+Konfiguracja Django, modele, migracje, endpointy, uprawnienia, logi
+Osoba 2 - Frontend
+React/Bootstrap, widoki
+Logowanie, dashboard, lista dokumentów, formularze, obsługa błędów 403
+Osoba 3 - Analiza, testy, dokumentacja
+Spójność projektu, testy, opis
+API_CONTRACT, scenariusze testowe, README, diagramy, prezentacja
+Zespół powinien pracować w jednym prywatnym repozytorium GitHub. Zalecana struktura gałęzi: main jako wersja stabilna, develop jako wersja robocza oraz feature/... dla konkretnych zadań. Frontend i backend mogą powstawać równolegle, jeżeli wcześniej zostanie ustalony kontrakt API.
+Nie commitować bezpośrednio do main.
+Każde zadanie wykonywać na osobnej gałęzi feature.
+Po zakończeniu zadania tworzyć Pull Request do develop.
+Nie wrzucać folderów venv, node_modules, plików .env ani haseł.
+Osoba odpowiedzialna za dokumentację pilnuje zgodności API z frontendem.
+12. Scenariusze testowe
+ID
+Scenariusz
+Oczekiwany wynik
+T-01
+Użytkownik niezalogowany próbuje wejść do /documents
+Przekierowanie do logowania albo błąd 401
+T-02
+Administrator otwiera listę dokumentów
+Widoczne są wszystkie dokumenty
+T-03
+Pracownik HR otwiera listę dokumentów
+Widoczne są tylko dokumenty publiczne i dokumenty HR dostępne dla roli
+T-04
+Pracownik HR próbuje wejść w raport finansowy przez bezpośredni link
+Backend zwraca 403, a próba trafia do AccessLog
+T-05
+Menedżer IT dodaje dokument do działu IT
+Dokument zostaje utworzony i zapisany w logach
+T-06
+Menedżer IT próbuje edytować dokument HR
+Backend odmawia dostępu
+T-07
+Audytor próbuje edytować dokument
+Backend odmawia dostępu
+T-08
+Audytor otwiera logi dostępu
+Logi są widoczne tylko do odczytu
+T-09
+Administrator usuwa dokument
+Dokument zostaje usunięty, a operacja trafia do logów
+T-10
+Użytkownik z indywidualnym dostępem otwiera dokument SECRET
+Dostęp zostaje przyznany
+13. Zakres MVP i rozszerzenia
+13.1. MVP - zakres minimalny
+Logowanie użytkowników.
+Role: Administrator, Menedżer, Pracownik, Audytor.
+Działy organizacji.
+Dokumenty z poziomem poufności.
+Lista dokumentów filtrowana według uprawnień.
+Szczegóły dokumentu zabezpieczone kontrolą dostępu.
+Dodawanie dokumentu przez administratora lub menedżera.
+Logowanie prób dostępu i podstawowych operacji.
+Widok logów dla administratora i audytora.
+13.2. Funkcje dodatkowe
+Pobieranie plików z kontrolą dostępu.
+Indywidualne nadawanie dostępu do konkretnego dokumentu.
+Eksport logów do CSV.
+Filtrowanie dokumentów po dziale, poziomie poufności i autorze.
+Panel zarządzania użytkownikami.
+Docker i PostgreSQL.
+Testy automatyczne endpointów API.
+14. Instrukcja wykorzystania dokumentu w Antigravity
+Ten dokument można wrzucić do projektu w folderze docs jako materiał opisujący logikę biznesową i systemową. Zalecana nazwa pliku w repozytorium:
+docs/logika_systemowa_i_biznesowa.pdf
+Po dodaniu pliku do repozytorium można poprosić narzędzie AI w Antigravity o analizę dokumentu i wygenerowanie struktury projektu, modeli Django, endpointów API, widoków frontendowych oraz scenariuszy testowych zgodnych z tym opisem.
+Dokument definiuje, co system ma robić od strony biznesowej.
+Opisuje role, reguły dostępu i zachowanie systemu.
+Może służyć jako punkt odniesienia dla całego zespołu.
+Może być wykorzystany do wygenerowania plików PROJECT_SCOPE.md, API_CONTRACT.md i TEST_SCENARIOS.md.
+15. Podsumowanie
+Projekt powinien zostać zrealizowany jako system kontroli dostępu do dokumentów organizacji. Najważniejszym elementem nie jest samo przechowywanie plików, ale mechanizm decyzyjny sprawdzający, czy użytkownik może zobaczyć lub zmodyfikować konkretny zasób. Dzięki zastosowaniu ról, działów, poziomów poufności i logów audytu projekt dobrze odpowiada na temat systemu kontroli dostępu do zasobów informacyjnych.
