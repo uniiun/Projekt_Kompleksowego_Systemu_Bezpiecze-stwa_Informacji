@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+// Dynamiczne pobieranie adresu IP / hosta serwera
+const getBaseURL = () => {
+  const hostname = window.location.hostname;
+  return `http://${hostname}:8000/api/`;
+};
+
 const apiClient = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/',
+  baseURL: getBaseURL(),
 });
 
 apiClient.interceptors.request.use((config) => {
