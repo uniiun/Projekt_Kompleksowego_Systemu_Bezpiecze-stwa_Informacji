@@ -1,4 +1,4 @@
-# Pre-commit hooks dla JustDownIt
+# Pre-commit hooks dla kontrola_dostepu_do_zasobow_informacyjnych
 repos:
   # Isort - sortowanie importow (przed black)
   - repo: https://github.com/PyCQA/isort
@@ -9,7 +9,7 @@ repos:
 
   # Black - formatowanie kodu
   - repo: https://github.com/psf/black
-    rev: 26.1.0
+    rev: 25.1.0
     hooks:
       - id: black
         language_version: python3
@@ -17,12 +17,12 @@ repos:
 
   # Ruff - szybki linter i formatter
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.0
+    rev: v0.11.12
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: [--fix]
 
-# MyPy - type checking (Dostosowany pod Daemona)
+  # MyPy - sprawdzanie typow
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.14.1
     hooks:
@@ -35,15 +35,15 @@ repos:
           - types-requests
         args: [--ignore-missing-imports]
 
-  # Bandit - security (Zmienione sciezki na core i api)
+  # Bandit - analiza bezpieczenstwa
   - repo: https://github.com/PyCQA/bandit
     rev: 1.8.6
     hooks:
       - id: bandit
-        args: [-ll, -r, app/core/, app/api/]
-        exclude: ^tests/
+        args: [-ll]
+        exclude: ^(tests/|\.venv/)
 
-  # Pre-commit hooks - basic checks
+  # Pre-commit hooks - podstawowe sprawdzenia
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -54,23 +54,15 @@ repos:
       - id: check-json
       - id: check-added-large-files
         args: [--maxkb=1000]
-        exclude: ^(bin/|voice_samples/.*\.wav$)
       - id: mixed-line-ending
         args: [--fix=lf]
       - id: check-merge-conflict
       - id: debug-statements
 
-# Vulture - martwy kod (Zmienione sciezki)
+  # Vulture - wykrywanie martwego kodu
   - repo: https://github.com/jendrikseipp/vulture
     rev: v2.14
     hooks:
       - id: vulture
-        args: [--min-confidence, "80", app/core/, app/api/]
-
-  # Detect-secrets - wykrywanie sekretow i hase
-  # - repo: https://github.com/Yelp/detect-secrets
-  #   rev: v1.5.0
-  #   hooks:
-  #     - id: detect-secrets
-  #       args: [--baseline, .secrets.baseline]
-  #       exclude: ^(\.venv|htmlcov|\.pytest_cache)/
+        args: [--min-confidence, "80", .]
+        exclude: ^\.venv/
