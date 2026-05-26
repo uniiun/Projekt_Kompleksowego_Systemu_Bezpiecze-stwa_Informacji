@@ -10,6 +10,9 @@ services:
       - ./backend:/app
     environment:
       - PYTHONUNBUFFERED=1
+    # Wymagane dla Docker wewnatrz nieprivilegowanego kontenera LXC na Proxmox
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 0
     restart: always
 
   frontend:
@@ -22,6 +25,9 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    # Wymagane dla Docker wewnatrz nieprivilegowanego kontenera LXC na Proxmox
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 0
     depends_on:
       - backend
     restart: always
