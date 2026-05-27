@@ -55,7 +55,7 @@ const ProfilePage = () => {
           </svg>
           Twój Profil
         </h2>
-        
+
         <div className="row mb-4">
           <div className="col-md-6">
             <h5 className="text-primary mb-3">Informacje podstawowe</h5>
@@ -64,18 +64,18 @@ const ProfilePage = () => {
             <div className="mb-2"><strong>Rola:</strong> <span className="ms-2 text-white-50">{user?.profile?.role}</span></div>
             <div className="mb-2"><strong>Dział:</strong> <span className="ms-2 text-white-50">{user?.profile?.department_name || 'Globalny'}</span></div>
           </div>
-          
+
           <div className="col-md-6 text-md-end mt-4 mt-md-0">
              <div className="p-4 border border-light border-opacity-10 rounded bg-black bg-opacity-20">
                 <h5 className="mb-3 text-start text-md-end">Dwuetapowa weryfikacja (MFA)</h5>
-                <p className="mb-4 text-start text-md-end">Status: 
+                <p className="mb-4 text-start text-md-end">Status:
                   <span className={`ms-2 badge ${user?.profile?.mfa_enabled ? 'bg-success' : 'bg-secondary'}`}>
                     {user?.profile?.mfa_enabled ? 'Aktywne' : 'Nieaktywne'}
                   </span>
                 </p>
                 {!user?.profile?.mfa_enabled ? (
-                  <button 
-                    className="btn btn-primary px-4" 
+                  <button
+                    className="btn btn-primary px-4"
                     onClick={handleEnableMFA}
                     disabled={loading}
                   >
@@ -87,8 +87,8 @@ const ProfilePage = () => {
                     ) : 'Aktywuj MFA'}
                   </button>
                 ) : (
-                  <button 
-                    className="btn btn-outline-danger px-4" 
+                  <button
+                    className="btn btn-outline-danger px-4"
                     onClick={handleDisableMFA}
                     disabled={loading}
                   >

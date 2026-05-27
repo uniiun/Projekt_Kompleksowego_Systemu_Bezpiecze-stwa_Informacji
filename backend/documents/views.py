@@ -79,7 +79,8 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     # Pobieranie linku do pobrania pliku
     @action(detail=True, methods=["get"])
-    def download(self, request, _pk=None):
+    def download(self, request, pk=None):
+        _ = pk
         instance = self.get_object()
         if instance.file:
             return Response({"url": instance.file.url})
