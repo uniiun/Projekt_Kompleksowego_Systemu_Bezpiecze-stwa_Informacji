@@ -10,8 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from datetime import timedelta
 from pathlib import Path
+
+from .logging_config import build_logging_config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +32,9 @@ DEBUG = True
 # Zezwolenie na wszystkie hosty w celach deweloperskich i zdalnego dostepu na Proxmox
 ALLOWED_HOSTS = ["*"]
 
+# Centralized logging configuration
+LOG_LEVEL = os.getenv("LOG_LEVEL")
+LOGGING = build_logging_config(DEBUG, LOG_LEVEL)
 
 # Application definition
 

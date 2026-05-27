@@ -58,6 +58,8 @@ Skrypt automatycznie:
 - **Problem: Brak uprawnień do wykonywania skryptów w PowerShell.**
   - Uruchom PowerShell jako Administrator i wykonaj: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 
+Jeśli chcesz nadpisać ustawienia (np. poziom logowania), użyj plików `backend/.env.example` i `frontend/.env.example` jako szablonów.
+
 ---
 
 ### Sposob 2: Za pomoca Dockera (Debian / Proxmox / Windows)
@@ -78,13 +80,26 @@ Dostep do aplikacji po uruchomieniu Dockera:
 
 ---
 
+## Logowanie wieloetapowe (MFA)
+1. **Krok 1:** login i hasło (`/api/auth/login/`).
+2. Jeśli konto ma MFA, backend zwraca `mfa_required: true` oraz `temp_token`.
+3. **Krok 2:** weryfikacja kodu TOTP (`/api/auth/verify-totp/`) z `token` i `temp_token`.
+
+W profilu użytkownika możesz aktywować MFA i wygenerować kod QR oraz kody zapasowe.
+
+## Testy backendu
+Uruchom zestaw testów (Django + testy w katalogu `tests`):
+```bash
+python tests/run_tests.py
+```
+
 ## Struktura Uzytkownikow i Uprawnien
 
 System opiera sie na nastepujacych rolach uzytkownikow:
 - **ADMIN** - Pelny dostep do zarzadzania uzytkownikami, dzialami, wszystkimi dokumentami oraz logami audytowymi.
-- **MANAGER** - Zarzadzanie dokumentami przypisanymi do jego dzialu oraz podglad wybranych logow.
+- **MANAGER** - Zarzadzanie dokumentami przypisanymi do jego dzialu; brak dostepu do logow audytu.
 - **EMPLOYEE** - Dostep do dokumentow publicznych oraz wewnetrznych swojego dzialu. Brak mozliwosci edycji i usuwania.
-- **AUDITOR** - Dostep do logow audytu oraz wszystkich dokumentow w trybie tylko do odczytu.
+- **AUDITOR** - Dostep do logow audytu oraz dokumentow w trybie tylko do odczytu.
 
 ### Poziomy Poufnosci Dokumentow:
 1. `PUBLIC` - Dostepny dla wszystkich zalogowanych uzytkownikow.

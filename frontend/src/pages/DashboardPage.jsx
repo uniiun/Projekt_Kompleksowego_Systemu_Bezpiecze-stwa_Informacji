@@ -10,10 +10,6 @@ const DashboardPage = () => {
     docsCount: 0,
     logsCount: 0
   });
-  const [mfaEnabled, setMfaEnabled] = useState(false);
-  const [mfaSecret, setMfaSecret] = useState('');
-  const [mfaLoading, setMfaLoading] = useState(false);
-  const [mfaError, setMfaError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,7 +24,7 @@ const DashboardPage = () => {
         // Fetch logs count if authorized
         let logsCount = 0;
         const role = userRes.data?.profile?.role;
-        if (role === 'ADMIN' || role === 'AUDITOR' || role === 'MANAGER') {
+        if (role === 'ADMIN' || role === 'AUDITOR') {
           const logsRes = await apiClient.get('/audit-logs/');
           logsCount = logsRes.data.length;
         }
@@ -43,65 +39,12 @@ const DashboardPage = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    setMfaEnabled(Boolean(user?.profile?.mfa_enabled));
-  }, [user]);
-
-  const handleEnableMfa = async () => {
-    setMfaLoading(true);
-    setMfaError('');
-    try {
-      const res = await apiClient.post('/auth/mfa/enable/');
-      setMfaSecret(res.data.totp_secret || '');
-      setMfaEnabled(Boolean(res.data.mfa_enabled));
-      setUser((prev) => prev ? {
-        ...prev,
-        profile: {
-          ...prev.profile,
-          mfa_enabled: Boolean(res.data.mfa_enabled)
-        }
-      } : prev);
-    } catch (err) {
-      console.error('Błąd włączania MFA:', err);
-      setMfaError('Nie udało się włączyć MFA. Spróbuj ponownie.');
-    } finally {
-      setMfaLoading(false);
-    }
-  };
-
-  const handleDisableMfa = async () => {
-    setMfaLoading(true);
-    setMfaError('');
-    try {
-      const res = await apiClient.post('/auth/mfa/disable/');
-      setMfaSecret('');
-      setMfaEnabled(Boolean(res.data.mfa_enabled));
-      setUser((prev) => prev ? {
-        ...prev,
-        profile: {
-          ...prev.profile,
-          mfa_enabled: Boolean(res.data.mfa_enabled)
-        }
-      } : prev);
-    } catch (err) {
-      console.error('Błąd wyłączania MFA:', err);
-      setMfaError('Nie udało się wyłączyć MFA. Spróbuj ponownie.');
-    } finally {
-      setMfaLoading(false);
-    }
-  };
 
   if (loading) return <LoadingSpinner message="Autoryzacja tokenu i pobieranie statusu..." />;
   if (!user) return <div className="alert alert-danger mt-4">Nie udało się załadować danych użytkownika. Zaloguj się ponownie.</div>;
 
   const role = user.profile?.role;
   const departmentName = user.profile?.department_name || 'Zarząd / Globalny';
-  const otpUri = mfaSecret && user.email
-    ? `otpauth://totp/SecureDocs:${user.email}?secret=${mfaSecret}&issuer=SecureDocs`
-    : '';
-  const qrUrl = otpUri
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(otpUri)}`
-    : '';
 
   const getRoleClass = (r) => {
     switch (r) {
@@ -142,7 +85,7 @@ const DashboardPage = () => {
         return [
           { text: `Odczyt dokumentów swojego działu (${departmentName})`, allowed: true },
           { text: `Dodawanie i Edycja dokumentów w dziale: ${departmentName}`, allowed: true },
-          { text: `Przeglądanie logów audytu dla działu: ${departmentName}`, allowed: true },
+          { text: 'Dostęp do logów audytu (Historia operacji)', allowed: false },
           { text: 'Odczyt dokumentów innych działów (INTERNAL/CONFIDENTIAL)', allowed: false },
           { text: 'Usuwanie dokumentów (Tylko Admin)', allowed: false },
         ];
@@ -251,7 +194,7 @@ const DashboardPage = () => {
         </div>
 
         <div className="col-lg-4 col-md-12 col-12">
-          {role === 'ADMIN' || role === 'AUDITOR' || role === 'MANAGER' ? (
+          {role === 'ADMIN' || role === 'AUDITOR' ? (
             <Link to="/audit" className="text-decoration-none">
               <div className="card h-100 p-3 glass-panel-hover">
                 <div className="d-flex align-items-center justify-content-between">
@@ -392,66 +335,6 @@ const DashboardPage = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* MFA Settings */}
-      <div className="card p-4 border border-light border-opacity-10 mb-4">
-        <h5 className="text-white fw-bold d-flex align-items-center gap-2 mb-3 border-bottom border-light border-opacity-10 pb-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-primary">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          Ustawienia MFA (TOTP)
-        </h5>
-
-        <p className="text-white-50 small mb-3">
-          Status: <strong className={mfaEnabled ? 'text-success' : 'text-warning'}>{mfaEnabled ? 'Włączone' : 'Wyłączone'}</strong>
-        </p>
-
-        {mfaError && (
-          <div className="alert alert-danger border border-danger border-opacity-20 bg-danger bg-opacity-10 text-danger rounded-3 small mb-3">
-            {mfaError}
-          </div>
-        )}
-
-        <div className="d-flex flex-wrap gap-2">
-          {!mfaEnabled ? (
-            <button
-              className="btn btn-outline-info"
-              onClick={handleEnableMfa}
-              disabled={mfaLoading}
-            >
-              {mfaLoading ? 'Włączanie...' : 'Włącz MFA'}
-            </button>
-          ) : (
-            <button
-              className="btn btn-outline-danger"
-              onClick={handleDisableMfa}
-              disabled={mfaLoading}
-            >
-              {mfaLoading ? 'Wyłączanie...' : 'Wyłącz MFA'}
-            </button>
-          )}
-        </div>
-
-        {mfaSecret && (
-          <div className="mt-4 d-flex flex-column flex-md-row gap-4 align-items-start">
-            <div className="text-center">
-              {qrUrl && (
-                <img src={qrUrl} alt="QR MFA" className="img-fluid rounded" />
-              )}
-              <div className="text-muted small mt-2">Skanuj w Google Authenticator / Authy</div>
-            </div>
-            <div>
-              <div className="text-white small mb-1">Sekret MFA:</div>
-              <code className="text-info">{mfaSecret}</code>
-              <p className="text-white-50 small mt-2">
-                Kod QR generowany jest przez zewnętrzną usługę. Jeśli nie chcesz jej używać,
-                skopiuj sekret ręcznie.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Cyber Diagnostics Dashboard Widget */}

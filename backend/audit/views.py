@@ -14,12 +14,7 @@ class AccessLogViewSet(viewsets.ReadOnlyModelViewSet):
         role = user.profile.role
         queryset = AccessLog.objects.all().order_by("-created_at")
 
-        if role in ["ADMIN", "AUDITOR"]:
-            pass  # Full access
-        elif role == "MANAGER":
-            # Manager can see logs related to documents in their department
-            queryset = queryset.filter(document__department=user.profile.department)
-        else:
+        if role not in ["ADMIN", "AUDITOR"]:
             return AccessLog.objects.none()
 
         document_id = self.request.query_params.get("document")
@@ -30,7 +25,7 @@ class AccessLogViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         role = request.user.profile.role
-        if role not in ["ADMIN", "AUDITOR", "MANAGER"]:
+        if role not in ["ADMIN", "AUDITOR"]:
             return Response(
                 {"detail": "Brak uprawnień do tego zasobu."},
                 status=status.HTTP_403_FORBIDDEN,

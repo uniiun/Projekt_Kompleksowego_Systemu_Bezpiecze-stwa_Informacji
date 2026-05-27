@@ -41,7 +41,7 @@ function App() {
             </RoleProtectedRoute>
           } />
           <Route path="/audit" element={
-            <RoleProtectedRoute roles={["ADMIN", "AUDITOR", "MANAGER"]}>
+            <RoleProtectedRoute roles={["ADMIN", "AUDITOR"]}>
               <AuditLogsPage />
             </RoleProtectedRoute>
           } />

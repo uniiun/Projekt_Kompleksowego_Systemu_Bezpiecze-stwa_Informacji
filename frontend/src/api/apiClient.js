@@ -28,8 +28,12 @@ apiClient.interceptors.response.use(
       }
     }
     if (error.response && error.response.status === 403) {
+      const requestUrl = error.config?.url || '';
+      const isAuthRequest = requestUrl.includes('/auth/login/') || requestUrl.includes('/auth/verify-totp/');
       if (window.location.pathname !== '/forbidden') {
-        window.location.href = '/forbidden';
+        if (!isAuthRequest) {
+          window.location.href = '/forbidden';
+        }
       }
     }
     return Promise.reject(error);

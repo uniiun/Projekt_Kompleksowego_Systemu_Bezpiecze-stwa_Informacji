@@ -58,3 +58,30 @@ class MFAViewTests(TestCase):
         self.assertTrue(response.data.get("access"))
         self.assertTrue(response.data.get("refresh"))
         self.assertFalse(response.data.get("mfa_required"))
+
+    def test_login_returns_mfa_required_and_temp_token(self):
+        self.user.profile.mfa_enabled = True
+        self.user.profile.totp_secret = pyotp.random_base32()
+        self.user.profile.save()
+
+        response = self.client.post(
+            "/api/auth/login/",
+            {"username": self.user.username, "password": "password123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get("mfa_required"))
+        self.assertTrue(response.data.get("temp_token"))
+        self.assertIsNone(response.data.get("access"))
+
+    def test_login_returns_access_when_mfa_disabled(self):
+        response = self.client.post(
+            "/api/auth/login/",
+            {"username": self.user.username, "password": "password123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data.get("mfa_required"))
+        self.assertTrue(response.data.get("access"))

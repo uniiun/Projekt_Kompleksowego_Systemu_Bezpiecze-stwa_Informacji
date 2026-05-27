@@ -5,7 +5,7 @@ Endpointy udostępniane przez aplikację backendową do obsługi komunikacji z f
 ## Autoryzacja i Użytkownik
 
 ### `POST /api/auth/login/`
-- **Opis:** Logowanie do aplikacji. Zwraca tokeny autoryzacyjne.
+- **Opis:** Logowanie do aplikacji. Zwraca tokeny autoryzacyjne lub flagę MFA.
 - **Wymagane uprawnienia:** Publiczne
 - **Request:**
 ```json
@@ -14,21 +14,81 @@ Endpointy udostępniane przez aplikację backendową do obsługi komunikacji z f
   "password": "secretpassword"
 }
 ```
-- **Response (200 OK):** Zwraca JWT Access oraz Refresh token.
+- **Response (200 OK, MFA wyłączone):** Zwraca JWT Access oraz Refresh token.
+```json
+{
+  "access": "<jwt>",
+  "refresh": "<jwt>",
+  "mfa_required": false,
+  "temp_token": ""
+}
+```
+- **Response (200 OK, MFA włączone):** Zwraca `mfa_required` oraz `temp_token` do kroku 2.
+```json
+{
+  "mfa_required": true,
+  "temp_token": "<jwt>"
+}
+```
+
+### `POST /api/auth/verify-totp/`
+- **Opis:** Weryfikacja kodu TOTP i wydanie finalnych tokenów JWT.
+- **Wymagane uprawnienia:** Publiczne
+- **Request:**
+```json
+{
+  "token": "123456",
+  "temp_token": "<jwt>"
+}
+```
+- **Response (200 OK):**
+```json
+{
+  "access": "<jwt>",
+  "refresh": "<jwt>",
+  "mfa_required": false
+}
+```
+
+### `POST /api/auth/mfa/enable/`
+- **Opis:** Aktywuje MFA i zwraca sekret TOTP oraz kody zapasowe.
+- **Wymagane uprawnienia:** Zalogowany
+- **Response (200 OK):**
+```json
+{
+  "totp_secret": "<secret>",
+  "backup_codes": ["CODE1", "CODE2", "CODE3", "CODE4", "CODE5"],
+  "mfa_enabled": true
+}
+```
+
+### `POST /api/auth/mfa/disable/`
+- **Opis:** Wyłącza MFA dla konta.
+- **Wymagane uprawnienia:** Zalogowany
+- **Response (200 OK):**
+```json
+{
+  "mfa_enabled": false
+}
+```
 
 ### `GET /api/me/`
 - **Opis:** Zwraca informacje o obecnie zalogowanym użytkowniku.
 - **Wymagane uprawnienia:** Zalogowany
 - **Response (200 OK):**
-```json
-{
+ ```json
+ {
   "id": 1,
+  "username": "admin@example.com",
   "email": "admin@example.com",
-  "role": "ADMIN",
-  "department": 1,
-  "department_name": "Zarząd"
-}
-```
+  "profile": {
+    "role": "ADMIN",
+    "department": 1,
+    "department_name": "Zarząd",
+    "mfa_enabled": true
+  }
+ }
+ ```
 
 ## Działy (Departments)
 

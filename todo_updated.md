@@ -27,13 +27,13 @@
 - [ ] **M1.1: Konfiguracja Monorepo i Konteneryzacji (Docker)**
   - [x] Przygotować strukturę katalogów: `/backend`, `/frontend`, `/docs`.
   - [x] Stworzyć plik `docker-compose.yml` definiujący kontenery: `backend` (Django), `db` (PostgreSQL), `frontend` (React/Node). *(W PRAKTYCE: są tylko kontenery `backend` i `frontend`, baza to SQLite w `backend/db.sqlite3`)*
-  - [ ] Skonfigurować pliki `.gitignore` oraz `.env.example` dla backendu i frontendu. *(JEST: `.gitignore`; BRAK: `.env.example`)*
+  - [x] Skonfigurować pliki `.gitignore` oraz `.env.example` dla backendu i frontendu. *(JEST: `.gitignore`; DODANO: `.env.example`)*
 - [ ] **M1.2: Modelowanie Bazy Danych i Przygotowanie Struktur**
   - [x] Przenieść konceptualny model danych (User, Department, Document, DocumentPermission, AccessLog) na szablony deklaratywne w Django ORM. *(ZREALIZOWANE: `Department`, `Document`, `AccessLog`; zamiast `DocumentPermission` użyto `Document.allowed_users`)*
   - [ ] Zaimplementować rozszerzenia modelu użytkownika (`AbstractUser`) o pola `role` oraz `department`. *(OBECNIE: `User` + `Profile` w `backend/accounts/models.py`)*
 - [ ] **M1.3: Ustalenie Kontraktu API (API_CONTRACT.md)**
   - [x] Rozpisać pełną specyfikację REST API (endpointy, oczekiwane body, kody odpowiedzi HTTP: 200, 201, 401, 403, 404).
-  - [ ] Rozbudować kontrakt o punkty końcowe dla uwierzytelniania dwuskładnikowego (MFA) oraz przesyłania danych biometrycznych.
+  - [x] Rozbudować kontrakt o punkty końcowe dla uwierzytelniania dwuskładnikowego (MFA) oraz przesyłania danych biometrycznych. *(MFA uzupełnione w `docs/API_CONTRACT.md`; biometryka do dopisania po implementacji)*
 
 ### 🔐 MILESTONE 2: Rdzeń Backend – System Zarządzania Dokumentami i Kontrola Dostępu
 - [x] **M2.1: Autoryzacja i Konfiguracja Sesji bazowej**
@@ -49,14 +49,14 @@
     - [x] Restrykcje per rola (np. `EMPLOYEE` nie może modyfikować/usuwać, `AUDITOR` tylko odczyt).
 - [x] **M2.3: Moduł Automatycznego Audytu (Audit Engine)**
   - [x] Stworzyć mechanizm przechwytywania zdarzeń dostępowych (np. poprzez Django Middleware lub Signals).
-  - [x] Zapewnić logowanie do tabeli `AccessLog` zdarzeń: `LOGIN`, `VIEW_LIST`, `VIEW_DOCUMENT`, `DOWNLOAD_DOCUMENT`, `CREATE_DOCUMENT`, `UPDATE_DOCUMENT`, `DELETE_DOCUMENT`, `ACCESS_DENIED` (z IP i statusem HTTP).
-  - [ ] Zabezpieczyć endpoint `/api/audit-logs/` tak, aby dostęp mieli tylko `ADMIN` oraz `AUDITOR`. *(OBECNIE: dostęp mają także `MANAGER` w `backend/audit/views.py`)*
+  - [x] Zapewnić logowanie do tabeli `AccessLog` zdarzeń: `LOGIN`, `VIEW_LIST`, `VIEW_DOCUMENT`, `DOWNLOAD_DOCUMENT`, `CREATE_DOCUMENT`, `UPDATE_DOCUMENT`, `DELETE_DOCUMENT`, `ACCESS denied` (z IP i statusem HTTP).
+  - [x] Zabezpieczyć endpoint `/api/audit-logs/` tak, aby dostęp mieli tylko `ADMIN` oraz `AUDITOR`. *(ZROBIONE: `backend/audit/views.py`)*
 
 ### 🧬 MILESTONE 3: Zaawansowane Uwierzytelnianie – MFA i Komponent Biometryczny
 - [ ] **M3.1: Implementacja Drugiego Składnika (MFA - TOTP)**
   - [x] Zintegrować bibliotekę `pyotp` do generowania sekretów kryptograficznych per użytkownik. *(JEST: `backend/accounts/models.py` + `pyotp` w `requirements.txt`)*
-  - [ ] Stworzyć endpoint do aktywacji MFA (generowanie tajnego klucza oraz kodu QR dla Google Authenticator/Authy). *(WIDOK JEST: `EnableMFAView`, ale brak routingu w `backend/config/urls.py`)*
-  - [ ] Stworzyć endpoint `/api/auth/verify-totp/` sprawdzający poprawność kodu jednorazowego przed wydaniem ostatecznego tokenu JWT. *(WIDOK JEST: `VerifyMFAView`, brak routingu i brak spięcia z logowaniem)*
+  - [x] Stworzyć endpoint do aktywacji MFA (generowanie tajnego klucza oraz kodu QR dla Google Authenticator/Authy). *(ZROBIONE: routing w `backend/config/urls.py`)*
+  - [x] Stworzyć endpoint `/api/auth/verify-totp/` sprawdzający poprawność kodu jednorazowego przed wydaniem ostatecznego tokenu JWT. *(ZROBIONE: routing i spięcie z logowaniem)*
 - [ ] **M3.2: Implementacja Komponentu Biometrycznego (Wybór technologii)**
   - [ ] *Opcja A (Zaawansowana):* Integracja standardu WebAuthn (FIDO2/U2F) umożliwiającego użycie biometrii systemowej (Windows Hello, TouchID/FaceID) za pomocą przeglądarki.
   - [ ] *Opcja B (Algorytmiczno-Symulacyjna - OpenCV/Python):* Stworzenie modułu przyjmującego plik/zdjęcie (np. odcisk palca, próbka głosu).
@@ -69,16 +69,16 @@
 ### 🖥️ MILESTONE 4: Frontend – Panel Użytkownika i Integracja z API
 - [ ] **M4.1: Konfiguracja Architektury Aplikacji React**
   - [x] Postawić szkielet aplikacji z wykorzystaniem React Router v6 i Bootstrap/Tailwind.
-  - [ ] Zaimplementować globalny stan uwierzytelniania (Context API lub Redux Toolkit). *(OBECNIE: token czytany bezpośrednio z `localStorage` w komponentach)*
-  - [ ] Stworzyć komponenty typu Guard: `<ProtectedRoute>` (blokada dla niezalogowanych) oraz `<RoleProtectedRoute>` (weryfikacja ról). *(JEST: tylko `ProtectedRoute`)*
+  - [x] Zaimplementować globalny stan uwierzytelniania (Context API lub Redux Toolkit). *(ZROBIONE: `frontend/src/context/AuthContext`)*
+  - [x] Stworzyć komponenty typu Guard: `<ProtectedRoute>` (blokada dla niezalogowanych) oraz `<RoleProtectedRoute>` (weryfikacja ról). *(ZROBIONE: `frontend/src/components/RoleProtectedRoute.jsx`)*
 - [ ] **M4.2: Implementacja Wieloetapowego Przepływu Logowania (Multi-step Login)**
-  - [ ] Ekran 1: Login + Hasło. Po poprawnym uwierzytelnieniu backend zwraca flagę `mfa_required: true` oraz tymczasowy token sesji. *(OBECNIE: zwykły login JWT bez `mfa_required`)*
-  - [ ] Ekran 2: Dynamiczne przejście do weryfikacji składnika (MFA TOTP code input ORAZ/LUB wywołanie natywnego API biometrycznego / formularz przesyłania próbki).
+  - [x] Ekran 1: Login + Hasło. Po poprawnym uwierzytelnieniu backend zwraca flagę `mfa_required: true` oraz tymczasowy token sesji. *(ZROBIONE: CustomTokenObtainPairSerializer + UI)*
+  - [x] Ekran 2: Dynamiczne przejście do weryfikacji składnika (MFA TOTP code input ORAZ/LUB wywołanie natywnego API biometrycznego / formularz przesyłania próbki). *(ZROBIONE: TOTP w `LoginPage.jsx`)*
 - [x] **M4.3: Widoki Systemowe i Obsługa Zabezpieczeń w UI**
   - [x] Ekran Dashboard / Lista Dokumentów: Pobieranie przefiltrowanej listy z `/api/documents/`. Zaimplementować conditional rendering przycisków akcji (Edycja/Usuwanie) na podstawie roli użytkownika wyciągniętej z JWT.
   - [x] Implementacja formularza dodawania/edycji dokumentu z listą wyboru poziomów poufności (`PUBLIC` -> `SECRET`) i przypisaniem do odpowiedniego działu.
   - [x] Ekran Logów Audytowych: Tabela przeznaczona wyłącznie dla Audytora i Administratora z funkcją filtrowania po typie zdarzenia (np. tylko próby nieautoryzowane).
-  - [ ] Globalna obsługa błędów za pomocą interceptorów Axios (przechwytywanie błędu 403 i renderowanie komponentu informującego o złamaniu zasady najmniejszych uprawnień). *(OBECNIE: interceptor obsługuje tylko 401 w `frontend/src/api/apiClient.js`)*
+  - [x] Globalna obsługa błędów za pomocą interceptorów Axios (przechwytywanie błędu 403 i renderowanie komponentu informującego o złamaniu zasady najmniejszych uprawnień). *(ZROBIONE: `frontend/src/api/apiClient.js`)*
 
 ### 📊 MILESTONE 5: Część Badawczo-Naukowa i Analiza Bezpieczeństwa
 - [ ] **M5.1: Matematyczno-Statystyczna Analiza Modułu Biometrycznego**
@@ -97,7 +97,7 @@
 
 ### 📝 MILESTONE 6: Refaktoryzacja, Dokumentacja Końcowa i Przygotowanie do Obrony
 - [ ] **M6.1: Pokrycie Kodu Testami Automatycznymi**
-  - [ ] Napisać testy jednostkowe i integracyjne w Django (`pytest` lub `django.test.TestCase`) weryfikujące pełną macierz uprawnień (scenariusze T-01 do T-10 z dokumentacji specyfikacji).
+  - [ ] Napisać testy jednostkowe i integracyjne w Django (`pytest` lub `django.test.TestCase`) weryfikujące pełną macierz uprawnień (scenariusze T-01 do T-10 z dokumentacji specyfikacji). *(CZĘŚCIOWO: testy RBAC w `tests/backend/documents/tests_rbac_matrix.py`)*
 - [ ] **M6.2: Finalizacja Dokumentacji Projektowej (`/docs`)**
   - [x] Zaktualizować plik `README.md` (instrukcja uruchomienia projektu w Dockerze za pomocą jednej komendy `docker-compose up --build`).
   - [ ] Przygotować finalny raport z części badawczej (wyniki testów FAR/FRR, wnioski z analizy bezpieczeństwa i testów użyteczności).

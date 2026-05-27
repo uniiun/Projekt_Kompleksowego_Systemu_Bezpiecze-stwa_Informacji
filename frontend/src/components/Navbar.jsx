@@ -14,7 +14,7 @@ const Navbar = () => {
   if (!token) return null;
 
   const role = user?.profile?.role;
-  const showAuditLink = role === 'ADMIN' || role === 'AUDITOR' || role === 'MANAGER';
+  const showAuditLink = role === 'ADMIN' || role === 'AUDITOR';
   const showUsersLink = role === 'ADMIN';
 
   const getRoleClass = (r) => {

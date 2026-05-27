@@ -90,6 +90,12 @@ const LoginPage = () => {
     }
   };
 
+  const handleResetMfa = () => {
+    setMfaRequired(false);
+    setTempToken('');
+    setOtp('');
+  };
+
   const demoAccounts = [
     { email: 'admin@example.com', pass: 'admin123', label: 'Admin (Zarząd)', role: 'ADMIN', color: '#f43f5e' },
     { email: 'manager.it@example.com', pass: 'manager123', label: 'Manager (IT)', role: 'MANAGER', color: '#fb923c' },
@@ -177,6 +183,10 @@ const LoginPage = () => {
 
             {mfaRequired && (
               <form onSubmit={handleVerifyMfa} className="mt-4">
+                <div className="alert alert-info py-2 small mb-3">
+                  Wpisz kod z aplikacji uwierzytelniającej (TOTP). Jeśli nie masz dostępu,
+                  użyj jednorazowego kodu zapasowego.
+                </div>
                 <div className="mb-3">
                   <label className="small text-uppercase tracking-wider font-monospace">Kod MFA (TOTP)</label>
                   <input
@@ -195,6 +205,14 @@ const LoginPage = () => {
                   disabled={loading}
                 >
                   Zweryfikuj kod MFA
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-link w-100 mt-2"
+                  onClick={handleResetMfa}
+                  disabled={loading}
+                >
+                  Wróć do logowania
                 </button>
               </form>
             )}
