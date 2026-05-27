@@ -1,9 +1,10 @@
 # Sprawdzanie i przygotowanie srodowiska dla projektu oraz uruchamianie serwerow
 
 import os
+import shutil
 import subprocess
 import sys
-import shutil
+
 
 def main():
     # Sprawdzenie czy skrypt jest uruchomiony w glownym katalogu projektu
@@ -63,7 +64,9 @@ def main():
         print("Instalowanie/Aktualizowanie zaleznosci backendu (pip)...")
         try:
             # Uaktualnienie pip wewnatrz venv
-            subprocess.run([venv_python, "-m", "pip", "install", "--upgrade", "pip"], check=True)
+            subprocess.run(
+                [venv_python, "-m", "pip", "install", "--upgrade", "pip"], check=True
+            )
             # Instalacja paczek z requirements.txt
             subprocess.run([venv_pip, "install", "-r", requirements_file], check=True)
             print("Zaleznosci backendu zostaly pomyslnie zainstalowane.")
@@ -79,7 +82,9 @@ def main():
 
     if os.path.exists(package_json):
         if not os.path.exists(node_modules_dir):
-            print("Nie znaleziono folderu node_modules. Instalowanie zaleznosci frontendu (npm install)...")
+            print(
+                "Nie znaleziono folderu node_modules. Instalowanie zaleznosci frontendu (npm install)..."
+            )
             try:
                 # Na Windowsie npm jest plikiem cmd, dlatego shell=True moze byc wymagane
                 subprocess.run("npm install", shell=True, cwd=frontend_dir, check=True)
@@ -99,7 +104,7 @@ def main():
     if sys.platform == "win32":
         # Windows: Uruchamiamy serwery w osobnych oknach cmd, co ulatwia czytanie logow i zamykanie procesow
         print("Uruchamianie backendu i frontendu w nowych oknach konsoli...")
-        
+
         # Komenda do uruchomienia Django
         django_cmd = f'cmd /k "title Serwer Backend (Django) && "{venv_python}" backend\\manage.py runserver"'
         subprocess.Popen(django_cmd, shell=True)
@@ -113,9 +118,11 @@ def main():
         backend_proc = None
         frontend_proc = None
         try:
-            backend_proc = subprocess.Popen([venv_python, "backend/manage.py", "runserver"])
+            backend_proc = subprocess.Popen(
+                [venv_python, "backend/manage.py", "runserver"]
+            )
             frontend_proc = subprocess.Popen(["npm", "run", "dev"], cwd=frontend_dir)
-            
+
             # Oczekiwanie na zakonczenie dzialania procesow
             backend_proc.wait()
             frontend_proc.wait()
@@ -128,6 +135,7 @@ def main():
             print("Serwery zostaly zatrzymane.")
 
     print("Serwery zostaly uruchomione! Mozesz teraz korzystac z aplikacji.")
+
 
 if __name__ == "__main__":
     main()

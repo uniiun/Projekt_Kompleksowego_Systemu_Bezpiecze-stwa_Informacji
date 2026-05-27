@@ -20,9 +20,32 @@ class Profile(models.Model):
         blank=True,
         related_name="profiles",
     )
+    # Pola MFA
+    mfa_enabled = models.BooleanField(default=False)
+    totp_secret = models.CharField(max_length=32, blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"
+
+    # Włączenie MFA oraz generowanie sekretu
+    def enable_mfa(self):
+        # Włącza MFA, generuje sekret jeżeli go brak
+        import pyotp
+
+        if not self.totp_secret:
+            self.totp_secret = pyotp.random_base32()
+        self.mfa_enabled = True
+        self.save()
+        return self.totp_secret
+
+    # Weryfikacja podanego tokenu OTP
+    def verify_otp(self, token):
+        if not self.totp_secret:
+            return False
+        import pyotp
+
+        totp = pyotp.TOTP(self.totp_secret)
+        return totp.verify(token)
 
 
 # Signal to create profile automatically when user is created

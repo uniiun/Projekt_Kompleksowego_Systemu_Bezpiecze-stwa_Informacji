@@ -8,6 +8,12 @@ from documents.views import DepartmentViewSet, DocumentViewSet
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+# MFA endpoints
+# Enable MFA generates a secret for the user
+# VerifyMFA checks a provided OTP token
+# DisableMFA turns off MFA for the user
+
+
 router = routers.DefaultRouter()
 router.register(r"departments", DepartmentViewSet, basename="department")
 router.register(r"documents", DocumentViewSet, basename="document")

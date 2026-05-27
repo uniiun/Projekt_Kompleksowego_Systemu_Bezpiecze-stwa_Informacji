@@ -1,6 +1,28 @@
-.venv
-__pycache__/
+# Srodowisko wirtualne i cache Pythona
+venv/
 .venv/
-*.docx
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
 .env
+.env.local
+
+# Baza danych i pliki przesylane
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+
+# Node
 node_modules/
+dist/
+build/
+
+# Ustawienia IDE i systemu
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.docx
