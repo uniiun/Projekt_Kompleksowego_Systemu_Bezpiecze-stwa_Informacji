@@ -7,6 +7,7 @@ import AddDocumentPage from './pages/AddDocumentPage';
 import EditDocumentPage from './pages/EditDocumentPage';
 import UsersPage from './pages/UsersPage';
 import AuditLogsPage from './pages/AuditLogsPage';
+import ProfilePage from './pages/ProfilePage';
 import ForbiddenPage from './pages/ForbiddenPage';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -21,11 +22,24 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forbidden" element={<ForbiddenPage />} />
           <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
-          <Route path="/documents/new" element={<ProtectedRoute><AddDocumentPage /></ProtectedRoute>} />
+          <Route path="/documents/new" element={
+            <RoleProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <AddDocumentPage />
+            </RoleProtectedRoute>
+          } />
           <Route path="/documents/:id" element={<ProtectedRoute><DocumentDetailsPage /></ProtectedRoute>} />
-          <Route path="/documents/:id/edit" element={<ProtectedRoute><EditDocumentPage /></ProtectedRoute>} />
-          <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
+          <Route path="/documents/:id/edit" element={
+            <RoleProtectedRoute roles={["ADMIN", "MANAGER"]}>
+              <EditDocumentPage />
+            </RoleProtectedRoute>
+          } />
+          <Route path="/users" element={
+            <RoleProtectedRoute roles={["ADMIN"]}>
+              <UsersPage />
+            </RoleProtectedRoute>
+          } />
           <Route path="/audit" element={
             <RoleProtectedRoute roles={["ADMIN", "AUDITOR", "MANAGER"]}>
               <AuditLogsPage />

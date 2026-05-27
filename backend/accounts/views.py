@@ -27,9 +27,13 @@ class EnableMFAView(APIView):
 
     def post(self, request):
         profile = request.user.profile
-        secret = profile.enable_mfa()
+        secret, backup_codes = profile.enable_mfa()
         return Response(
-            {"totp_secret": secret, "mfa_enabled": profile.mfa_enabled},
+            {
+                "totp_secret": secret,
+                "backup_codes": backup_codes,
+                "mfa_enabled": profile.mfa_enabled,
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -91,5 +95,6 @@ class DisableMFAView(APIView):
         profile = request.user.profile
         profile.mfa_enabled = False
         profile.totp_secret = ""
+        profile.mfa_backup_codes = ""
         profile.save()
         return Response({"mfa_enabled": False}, status=status.HTTP_200_OK)

@@ -14,7 +14,11 @@ const UsersPage = () => {
       })
       .catch(err => {
         console.error(err);
-        setError('Błąd pobierania bazy użytkowników.');
+        if (err.response && err.response.status === 403) {
+            setError('Odmowa dostępu (403): Brak uprawnień administratora do przeglądania bazy użytkowników.');
+        } else {
+            setError('Błąd pobierania bazy użytkowników.');
+        }
       })
       .finally(() => {
         setLoading(false);

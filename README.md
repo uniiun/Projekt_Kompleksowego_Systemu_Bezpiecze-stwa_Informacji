@@ -13,15 +13,18 @@ Projekt akademicki realizujacy system kontroli dostepu do zasobow informacyjnych
 
 Projekt mozna uruchomic na dwa sposoby: lokalnie przy uzyciu jednego skryptu Python lub w kontenerach Docker (np. na serwerze Debian na Proxmox).
 
-### Sposob 1: Lokalnie za pomoca jednego pliku (Windows / Linux)
-Wszystkie kroki weryfikacji srodowiska, instalacji brakujacych zaleznosci i uruchamiania serwerow zostaly skonsolidowane w jednym, uniwersalnym skrypcie: **`run.py`**.
+### Sposób 1: Lokalnie za pomocą jednego pliku (Windows / Linux)
+Wszystkie kroki weryfikacji środowiska, instalacji brakujących zależności i uruchamiania serwerów zostały skonsolidowane w jednym, uniwersalnym skrypcie: **`run.py`**.
 
-Aby uruchomic projekt lokalnie, wywolaj w terminalu w glownym katalogu:
+Aby uruchomić projekt lokalnie, wywołaj w terminalu w głównym katalogu:
 
-#### Windows
-```bash
-python run.py
-```
+#### Windows (Zalecane)
+1. Otwórz terminal (PowerShell lub CMD) w głównym folderze projektu.
+2. Uruchom polecenie:
+   ```bash
+   python run.py
+   ```
+   *Uwaga: Skrypt automatycznie wykryje brakujące biblioteki i zainstaluje je w wirtualnym środowisku.*
 
 #### Linux (Debian) / macOS
 ```bash
@@ -29,10 +32,31 @@ python3 run.py
 ```
 
 Skrypt automatycznie:
-1. Sprawdza obecnosc Node.js i npm.
-2. Tworzy wirtualne srodowisko `.venv` i instaluje zaleznosci z `backend/requirements.txt`.
-3. Instaluje zaleznosci frontendu (`npm install`), jesli brak folderu `node_modules`.
+1. Sprawdza obecność Node.js i npm.
+2. Tworzy wirtualne środowisko `.venv` i instaluje zależności z `backend/requirements.txt`.
+3. Instaluje zależności frontendu (`npm install`), jeśli brak folderu `node_modules`.
 4. Uruchamia serwer backendu (Django, port 8000) oraz frontendu (Vite, port 5173).
+
+#### Rozwiązywanie problemów (Co sprawdzić, gdy frontend/backend nie startuje)
+- **Problem: Skrypt `run.py` kończy się błędem lub okna konsoli natychmiast się zamykają.**
+  - Sprawdź czy Python jest w PATH: `python --version`.
+  - Sprawdź czy Node.js jest zainstalowany: `node -v` oraz `npm -v`.
+  - Spróbuj uruchomić backend ręcznie, aby zobaczyć błędy:
+    ```bash
+    cd backend
+    ..\.venv\Scripts\python manage.py runserver
+    ```
+  - Spróbuj uruchomić frontend ręcznie:
+    ```bash
+    cd frontend
+    npm run dev
+    ```
+- **Problem: Błędy migracji lub bazy danych.**
+  - Uruchom: `python manage.py migrate` w folderze `backend/`.
+- **Problem: Port 5173 (frontend) lub 8000 (backend) jest zajęty.**
+  - Vite automatycznie spróbuje kolejnego portu (np. 5174). API Django wymaga portu 8000 – jeśli jest zajęty, zakończ proces go używający lub zmień port w `run.py`.
+- **Problem: Brak uprawnień do wykonywania skryptów w PowerShell.**
+  - Uruchom PowerShell jako Administrator i wykonaj: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`.
 
 ---
 
