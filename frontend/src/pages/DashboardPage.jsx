@@ -10,6 +10,8 @@ const DashboardPage = () => {
     docsCount: 0,
     logsCount: 0
   });
+  const [diagnostics, setDiagnostics] = useState(null);
+  const [diagnosticsError, setDiagnosticsError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +31,16 @@ const DashboardPage = () => {
           logsCount = logsRes.data.length;
         }
 
+        try {
+          const diagRes = await apiClient.get('/diagnostics/');
+          setDiagnostics(diagRes.data);
+          setDiagnosticsError(null);
+        } catch (diagErr) {
+          console.error('Błąd pobierania danych diagnostycznych:', diagErr);
+          setDiagnostics(null);
+          setDiagnosticsError('Brak połączenia z API diagnostyki');
+        }
+
         setStats({ docsCount, logsCount });
       } catch (err) {
         console.error('Błąd pobierania danych kokpitu:', err);
@@ -39,12 +51,43 @@ const DashboardPage = () => {
     fetchData();
   }, []);
 
-
   if (loading) return <LoadingSpinner message="Autoryzacja tokenu i pobieranie statusu..." />;
   if (!user) return <div className="alert alert-danger mt-4">Nie udało się załadować danych użytkownika. Zaloguj się ponownie.</div>;
 
   const role = user.profile?.role;
   const departmentName = user.profile?.department_name || 'Zarząd / Globalny';
+  const threatLevel = diagnostics?.threat_level || 'UNKNOWN';
+  const threatLabel =
+    threatLevel === 'LOW'
+      ? 'NISKI (LOW)'
+      : threatLevel === 'ELEVATED'
+        ? 'PODWYŻSZONY (ELEVATED)'
+        : threatLevel === 'HIGH'
+          ? 'WYSOKI (HIGH)'
+          : 'NIEZNANY (UNKNOWN)';
+  const threatClass =
+    threatLevel === 'LOW'
+      ? 'text-success'
+      : threatLevel === 'ELEVATED'
+        ? 'text-warning'
+        : 'text-danger';
+  const diagnosticsAvailable = Boolean(diagnostics);
+  const auditIntegrityLabel = diagnosticsAvailable
+    ? (diagnostics?.audit_pipeline_active ? 'PIPELINE ACTIVE' : 'PIPELINE OFF')
+    : 'NIEDOSTĘPNE';
+  const auditIntegrityStatus = diagnosticsAvailable
+    ? (diagnostics?.audit_hashing_enabled
+      ? `Hashowanie: ✓ Włączone • Łańcuch: ${diagnostics?.audit_chain_valid ? 'OK' : 'NIESPÓJNY'}`
+      : 'Hashowanie: ✗ Wyłączone')
+    : 'Brak danych z endpointu /api/diagnostics/';
+  const encryptionLabel = diagnostics?.encryption_standard || 'NIEDOSTĘPNE';
+  const dbEngineLabel = diagnostics?.rbac_db_engine?.includes('sqlite')
+    ? 'SQLITE ACTIVE'
+    : diagnosticsAvailable
+      ? 'DB ACTIVE'
+      : 'NIEDOSTĘPNE';
+  const deniedLast24h = diagnostics?.denied_last_24h ?? 0;
+  const deniedLast1h = diagnostics?.denied_last_1h ?? 0;
 
   const getRoleClass = (r) => {
     switch (r) {
@@ -342,7 +385,7 @@ const DashboardPage = () => {
         {/* Pulsing visual trace radar */}
         <div className="position-absolute end-0 top-0 m-4 text-primary d-flex align-items-center gap-1.5 font-monospace small tracking-wider" style={{ opacity: 0.65 }}>
           <span className="d-inline-block rounded-circle bg-success" style={{ width: '8px', height: '8px', boxShadow: '0 0 8px #10b981', animation: 'blink 1.5s infinite' }}></span>
-          NOD-ENFORCER: ONLINE
+          NOD-ENFORCER: {diagnostics?.service_status || 'NIEDOSTĘPNE'}
         </div>
 
         <h5 className="text-white fw-bold d-flex align-items-center gap-2 mb-3 border-bottom border-light border-opacity-10 pb-3">
@@ -352,36 +395,48 @@ const DashboardPage = () => {
           Konsola Diagnostyczna Tarczy Bezpieczeństwa
         </h5>
 
+        {diagnosticsError && (
+          <div className="alert alert-warning py-2 px-3 mb-3" role="alert" style={{ fontSize: '0.8rem' }}>
+            {diagnosticsError}
+          </div>
+        )}
+
         <div className="row g-4 text-center mt-1">
           <div className="col-lg-3 col-sm-6 col-12">
             <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
               <span className="text-muted small block uppercase font-monospace">Standard Szyfrowania</span>
-              <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>AES-256-GCM</strong>
-              <small className="text-success small block mt-1" style={{ fontSize: '0.7rem' }}>✓ Wymuszone systemowo</small>
+              <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>{encryptionLabel}</strong>
+              <small className="text-muted small block mt-1" style={{ fontSize: '0.7rem' }}>
+                TLS: {diagnostics?.encryption_in_transit_enabled ? 'Wymuszone' : 'Tryb DEV'}
+              </small>
             </div>
           </div>
 
           <div className="col-lg-3 col-sm-6 col-12">
             <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
               <span className="text-muted small block uppercase font-monospace">Integralność Audytu</span>
-              <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>SHA-256 HASHED</strong>
-              <small className="text-success small block mt-1" style={{ fontSize: '0.7rem' }}>✓ 100% Zgodna sygnatura</small>
+              <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>{auditIntegrityLabel}</strong>
+              <small className="text-muted small block mt-1" style={{ fontSize: '0.7rem' }}>
+                {auditIntegrityStatus} • Zdarzenia 24h: {diagnostics?.recent_audit_events_24h ?? 0}
+              </small>
             </div>
           </div>
 
           <div className="col-lg-3 col-sm-6 col-12">
             <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
               <span className="text-muted small block uppercase font-monospace">Poziom Zagrożeń</span>
-              <strong className="text-success d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px', textShadow: '0 0 10px rgba(16, 185, 129, 0.2)' }}>NISKI (LOW)</strong>
-              <small className="text-white-50 small block mt-1" style={{ fontSize: '0.7rem' }}>Ostatnie 24h bez naruszeń</small>
+              <strong className={`${threatClass} d-block mt-1 font-monospace`} style={{ letterSpacing: '0.5px', textShadow: '0 0 10px rgba(16, 185, 129, 0.2)' }}>{threatLabel}</strong>
+              <small className="text-white-50 small block mt-1" style={{ fontSize: '0.7rem' }}>
+                Odmowy: 1h={deniedLast1h}, 24h={deniedLast24h}
+              </small>
             </div>
           </div>
 
           <div className="col-lg-3 col-sm-6 col-12">
             <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
               <span className="text-muted small block uppercase font-monospace">Baza Danych RBAC</span>
-              <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>SQLITE ACTIVE</strong>
-              <small className="text-info small block mt-1" style={{ fontSize: '0.7rem' }}>Synchronizacja: OK</small>
+              <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>{dbEngineLabel}</strong>
+              <small className="text-info small block mt-1" style={{ fontSize: '0.7rem' }}>Logi: {diagnostics?.total_logs ?? 0}</small>
             </div>
           </div>
         </div>

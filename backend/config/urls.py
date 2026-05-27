@@ -6,7 +6,7 @@ from accounts.views import (
     UserViewSet,
     VerifyMFAView,
 )
-from audit.views import AccessLogViewSet
+from audit.views import AccessLogViewSet, SystemDiagnosticsView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -36,6 +36,9 @@ urlpatterns = [
     path("api/auth/verify-totp/", VerifyMFAView.as_view(), name="verify_totp"),
     path("api/auth/mfa/enable/", EnableMFAView.as_view(), name="enable_mfa"),
     path("api/auth/mfa/disable/", DisableMFAView.as_view(), name="disable_mfa"),
+    path(
+        "api/diagnostics/", SystemDiagnosticsView.as_view(), name="system_diagnostics"
+    ),
     path("api/me/", CurrentUserView.as_view(), name="current_user"),
     path("api/", include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

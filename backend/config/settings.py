@@ -36,6 +36,11 @@ ALLOWED_HOSTS = ["*"]
 LOG_LEVEL = os.getenv("LOG_LEVEL")
 LOGGING = build_logging_config(DEBUG, LOG_LEVEL)
 
+# Security diagnostics
+AUDIT_HASHING_ENABLED = True
+AUDIT_HASH_SECRET = os.getenv("AUDIT_HASH_SECRET", "")
+SECURITY_ENCRYPTION_STANDARD = "AES-256-GCM"
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -154,4 +159,5 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "AUTH_HEADER_TYPES": ("Bearer",),
+    "ALGORITHM": "HS256",
 }

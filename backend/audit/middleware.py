@@ -1,6 +1,7 @@
 import json
 
 from audit.models import AccessLog
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import resolve
 from django.utils.deprecation import MiddlewareMixin
@@ -97,8 +98,7 @@ class AuditMiddleware(MiddlewareMixin):
             else:
                 ip_address = request.META.get("REMOTE_ADDR")
 
-            # Tworzenie rekordu w bazie danych
-            AccessLog.objects.create(
+            log = AccessLog.objects.create(
                 user=user,
                 document=document,
                 action=action,
@@ -106,5 +106,16 @@ class AuditMiddleware(MiddlewareMixin):
                 ip_address=ip_address,
                 message=f"Status HTTP: {response.status_code}",
             )
+
+            if getattr(settings, "AUDIT_HASHING_ENABLED", False):
+                previous_log = (
+                    AccessLog.objects.exclude(pk=log.pk)
+                    .order_by("-created_at", "-id")
+                    .first()
+                )
+                prev_hash = previous_log.entry_hash if previous_log else ""
+                log.prev_hash = prev_hash
+                log.entry_hash = log.calculate_entry_hash(prev_hash)
+                log.save(update_fields=["prev_hash", "entry_hash"])
 
         return response

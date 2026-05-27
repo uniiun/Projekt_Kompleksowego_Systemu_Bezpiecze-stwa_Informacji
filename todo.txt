@@ -1,0 +1,18 @@
+todo: dodanie CRUD na uzytkownikow
+todo: poprawienie Konsola Diagnostyczna Tarczy Bezpieczeństwa
+todo: dodanie target blank do pobierania plikow
+todo: dodanie podgladu do plikow bez pobierania
+todo: podglad uzytkonikow z perspektywy admina
+todo: generowanie 6 a nie 5 kodow jednorazowych
+todo: potwierdzenie zapisania MFA zanim zamkniesz strone/przejdziesz
+todo: dodanie biometrii
+todo: pelne szyfrowanie plikow w bazie
+todo:
+todo:
+todo:
+todo:
+todo:
+todo:
+todo:
+todo:
+todo:

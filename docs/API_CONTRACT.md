@@ -124,3 +124,22 @@ Endpointy udostępniane przez aplikację backendową do obsługi komunikacji z f
 ### `GET /api/audit-logs/`
 - **Opis:** Pobranie historii operacji wykonanych w systemie, zawierających również te zablokowane ze statusem `ACCESS_DENIED`.
 - **Wymagane uprawnienia:** ADMIN lub AUDITOR.
+
+## Diagnostyka systemu
+
+### `GET /api/diagnostics/`
+- **Opis:** Zwraca bieżące parametry diagnostyczne dla kokpitu (poziom zagrożeń, liczba odmów, stan audytu).
+- **Wymagane uprawnienia:** Zalogowany
+- **Response (200 OK):**
+```json
+{
+  "service_status": "ONLINE",
+  "encryption_standard": "AES-256-GCM",
+  "audit_hashing_enabled": true,
+  "threat_level": "LOW",
+  "denied_last_24h": 0,
+  "total_logs": 120,
+  "last_event_at": "2026-05-27T18:21:30.000Z",
+  "rbac_db_engine": "django.db.backends.sqlite3"
+}
+```
