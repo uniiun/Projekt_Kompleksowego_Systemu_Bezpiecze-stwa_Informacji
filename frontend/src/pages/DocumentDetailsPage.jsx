@@ -35,7 +35,7 @@ const DocumentDetailsPage = () => {
       setDoc(docRes.data);
 
       // 3. Fetch audit logs related to this document (only for authorized roles)
-      if (role === 'ADMIN' || role === 'AUDITOR' || role === 'MANAGER') {
+      if (role === 'ADMIN' || role === 'AUDITOR') {
         const logsRes = await apiClient.get(`/audit-logs/?document=${id}`);
         setRelatedLogs(logsRes.data);
       }
@@ -92,7 +92,7 @@ const DocumentDetailsPage = () => {
 
   const refreshLogs = async () => {
     const role = me?.profile?.role;
-    if (role === 'ADMIN' || role === 'AUDITOR' || role === 'MANAGER') {
+    if (role === 'ADMIN' || role === 'AUDITOR') {
       try {
         const logsRes = await apiClient.get(`/audit-logs/?document=${id}`);
         setRelatedLogs(logsRes.data);
@@ -105,7 +105,7 @@ const DocumentDetailsPage = () => {
   const handleSimulateViolation = async (targetId) => {
     setTestResult(null);
     try {
-      const res = await apiClient.get(`/documents/${targetId}/`);
+      const res = await apiClient.get(`/documents/${targetId}/`, { skipForbiddenRedirect: true });
       setTestResult({
         success: true,
         message: `Dostęp przyznany! Plik: "${res.data.title}" jest dla Ciebie otwarty.`
@@ -283,7 +283,7 @@ const DocumentDetailsPage = () => {
         </div>
 
         {/* Audit logs for this document */}
-        {(role === 'ADMIN' || role === 'AUDITOR' || role === 'MANAGER') && (
+        {(role === 'ADMIN' || role === 'AUDITOR') && (
           <div className="card p-4 border border-light border-opacity-10 mt-4">
             <h5 className="text-white fw-bold d-flex align-items-center gap-2 mb-3 border-bottom border-light border-opacity-10 pb-3">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-primary">

@@ -34,4 +34,3 @@ def build_logging_config(debug: bool, log_level: Optional[str]) -> dict:
             "level": resolved_level,
         },
     }
-

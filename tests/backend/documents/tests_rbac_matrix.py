@@ -1,9 +1,8 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
+from documents.models import Department, Document
 from rest_framework import status
 from rest_framework.test import APIClient
-
-from documents.models import Department, Document
 
 
 class RBACMatrixTests(TestCase):
@@ -151,4 +150,3 @@ class RBACMatrixTests(TestCase):
             {"title": "Hack"},
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
