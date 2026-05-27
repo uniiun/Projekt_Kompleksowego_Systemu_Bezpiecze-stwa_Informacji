@@ -2,8 +2,9 @@
 # Użyj: python migrations.py
 # Użyj: python start.py
 import os
-import sys
 import subprocess
+import sys
+
 
 def run_manage(py_cmd, args):
     """Uruchamia manage.py z podanymi argumentami."""
@@ -13,6 +14,7 @@ def run_manage(py_cmd, args):
     if result.returncode != 0:
         print("Błąd:", result.stderr, file=sys.stderr)
         sys.exit(result.returncode)
+
 
 if __name__ == "__main__":
     # Ścieżka do katalogu projektu (gdzie znajduje się manage.py)

@@ -1,28 +1,13 @@
-import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import apiClient from '../api/apiClient';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem('access_token');
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    if (token) {
-      apiClient.get('/me/')
-        .then(res => setUser(res.data))
-        .catch(err => {
-          console.error('Błąd podczas pobierania danych użytkownika w Navbar:', err);
-        });
-    } else {
-      setUser(null);
-    }
-  }, [token, location.pathname]);
+  const { token, user, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    setUser(null);
+    logout();
     navigate('/login');
   };
 

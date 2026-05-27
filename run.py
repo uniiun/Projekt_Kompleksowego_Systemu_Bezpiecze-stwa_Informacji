@@ -38,14 +38,23 @@ def main():
         npm_version = subprocess.getoutput("npm --version").strip()
         print(f"Wykryto npm: {npm_version}")
 
+    npm_cmd = shutil.which("npm")
+    if not npm_cmd:
+        print("Blad: Nie znaleziono npm w PATH.")
+        sys.exit(1)
+
     # Sprawdzenie i konfiguracja wirtualnego srodowiska Python (.venv)
     venv_dir = os.path.join(root_dir, ".venv")
     if sys.platform == "win32":
         venv_python = os.path.join(venv_dir, "Scripts", "python.exe")
-        venv_pip = os.path.join(venv_dir, "Scripts", "pip.exe")
     else:
         venv_python = os.path.join(venv_dir, "bin", "python")
-        venv_pip = os.path.join(venv_dir, "bin", "pip")
+
+    runtime_python = venv_python if os.path.exists(venv_python) else sys.executable
+    if not os.path.exists(runtime_python):
+        print(f"Blad: Nie znaleziono interpretera Pythona: {runtime_python}")
+        sys.exit(1)
+    print(f"Interpreter Pythona: {runtime_python}")
 
     if not os.path.exists(venv_dir):
         print("Nie znaleziono wirtualnego srodowiska (.venv). Tworzenie nowego...")
@@ -65,10 +74,13 @@ def main():
         try:
             # Uaktualnienie pip wewnatrz venv
             subprocess.run(
-                [venv_python, "-m", "pip", "install", "--upgrade", "pip"], check=True
+                [runtime_python, "-m", "pip", "install", "--upgrade", "pip"], check=True
             )
             # Instalacja paczek z requirements.txt
-            subprocess.run([venv_pip, "install", "-r", requirements_file], check=True)
+            subprocess.run(
+                [runtime_python, "-m", "pip", "install", "-r", requirements_file],
+                check=True,
+            )
             print("Zaleznosci backendu zostaly pomyslnie zainstalowane.")
         except Exception as e:
             print(f"Blad podczas instalowania zaleznosci backendu: {e}")
@@ -99,19 +111,25 @@ def main():
 
     print("=== Weryfikacja zakonczona sukcesem ===")
     print("Uruchamianie serwerow...")
+    print("Frontend (Vite): http://localhost:5173")
+    print("Backend (Django API): http://localhost:8000")
 
     # Uruchomienie aplikacji w zaleznosci od systemu operacyjnego
     if sys.platform == "win32":
         # Windows: Uruchamiamy serwery w osobnych oknach cmd, co ulatwia czytanie logow i zamykanie procesow
         print("Uruchamianie backendu i frontendu w nowych oknach konsoli...")
 
-        # Komenda do uruchomienia Django
-        django_cmd = f'cmd /k "title Serwer Backend (Django) && "{venv_python}" backend\\manage.py runserver"'
-        subprocess.Popen(django_cmd, shell=True)
+        subprocess.Popen(
+            [runtime_python, "manage.py", "runserver"],
+            cwd=backend_dir,
+            creationflags=subprocess.CREATE_NEW_CONSOLE,
+        )
 
-        # Komenda do uruchomienia Vite (React)
-        vite_cmd = 'cmd /k "title Serwer Frontend (Vite) && npm run dev"'
-        subprocess.Popen(vite_cmd, shell=True, cwd=frontend_dir)
+        subprocess.Popen(
+            [npm_cmd, "run", "dev"],
+            cwd=frontend_dir,
+            creationflags=subprocess.CREATE_NEW_CONSOLE,
+        )
     else:
         # Inne systemy (Linux / macOS)
         print("Uruchamianie backendu i frontendu w tle...")
@@ -119,9 +137,9 @@ def main():
         frontend_proc = None
         try:
             backend_proc = subprocess.Popen(
-                [venv_python, "backend/manage.py", "runserver"]
+                [runtime_python, "manage.py", "runserver"], cwd=backend_dir
             )
-            frontend_proc = subprocess.Popen(["npm", "run", "dev"], cwd=frontend_dir)
+            frontend_proc = subprocess.Popen([npm_cmd, "run", "dev"], cwd=frontend_dir)
 
             # Oczekiwanie na zakonczenie dzialania procesow
             backend_proc.wait()

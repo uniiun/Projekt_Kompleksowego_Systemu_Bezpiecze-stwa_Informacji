@@ -1,9 +1,11 @@
 import json
+
+from audit.models import AccessLog
+from django.contrib.auth.models import User
 from django.urls import resolve
 from django.utils.deprecation import MiddlewareMixin
-from audit.models import AccessLog
 from documents.models import Document
-from django.contrib.auth.models import User
+
 
 # Klasa middleware do automatycznego logowania zdarzen audytowych (Audit Engine)
 class AuditMiddleware(MiddlewareMixin):

@@ -1,13 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [tempToken, setTempToken] = useState('');
+  const [otp, setOtp] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,8 +23,15 @@ const LoginPage = () => {
         username: email,
         password: password
       });
-      localStorage.setItem('access_token', response.data.access);
-      navigate('/');
+      if (response.data.mfa_required) {
+        setMfaRequired(true);
+        setTempToken(response.data.temp_token || '');
+        return;
+      }
+      if (response.data.access) {
+        login(response.data.access);
+        navigate('/');
+      }
     } catch (err) {
       setError('Niepoprawny login (email) lub hasło.');
     } finally {
@@ -41,13 +53,41 @@ const LoginPage = () => {
           username: demoEmail,
           password: demoPassword
         });
-        localStorage.setItem('access_token', response.data.access);
-        navigate('/');
+        if (response.data.mfa_required) {
+          setMfaRequired(true);
+          setTempToken(response.data.temp_token || '');
+          setLoading(false);
+          return;
+        }
+        if (response.data.access) {
+          login(response.data.access);
+          navigate('/');
+        }
       } catch (err) {
         setError('Błąd szybkiego logowania.');
         setLoading(false);
       }
     }, 400);
+  };
+
+  const handleVerifyMfa = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const response = await apiClient.post('/auth/verify-totp/', {
+        token: otp,
+        temp_token: tempToken
+      });
+      if (response.data.access) {
+        login(response.data.access);
+        navigate('/');
+      }
+    } catch (err) {
+      setError('Niepoprawny kod MFA.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const demoAccounts = [
@@ -134,6 +174,30 @@ const LoginPage = () => {
                 )}
               </button>
             </form>
+
+            {mfaRequired && (
+              <form onSubmit={handleVerifyMfa} className="mt-4">
+                <div className="mb-3">
+                  <label className="small text-uppercase tracking-wider font-monospace">Kod MFA (TOTP)</label>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={e => setOtp(e.target.value)}
+                    className="form-control"
+                    placeholder="123456"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-outline-info w-100 py-2.5 d-flex align-items-center justify-content-center gap-2"
+                  disabled={loading}
+                >
+                  Zweryfikuj kod MFA
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

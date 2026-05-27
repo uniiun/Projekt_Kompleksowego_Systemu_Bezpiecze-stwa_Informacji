@@ -23,7 +23,14 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('access_token');
-      window.location.href = '/login';
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    if (error.response && error.response.status === 403) {
+      if (window.location.pathname !== '/forbidden') {
+        window.location.href = '/forbidden';
+      }
     }
     return Promise.reject(error);
   }

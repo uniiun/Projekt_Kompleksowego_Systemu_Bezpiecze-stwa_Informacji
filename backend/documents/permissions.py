@@ -1,5 +1,6 @@
 from rest_framework import permissions
 
+
 # Klasa uprawnien DRF weryfikujaca dostep do dokumentow (RBAC)
 class IsAuthorizedForDocument(permissions.BasePermission):
 
@@ -49,12 +50,18 @@ class IsAuthorizedForDocument(permissions.BasePermission):
         if obj.confidentiality_level == "INTERNAL":
             if role == "AUDITOR":
                 return True
-            return obj.department == user.profile.department or user in obj.allowed_users.all()
+            return (
+                obj.department == user.profile.department
+                or user in obj.allowed_users.all()
+            )
 
         # Poziom CONFIDENTIAL dostepny dla menedzera tego dzialu, a takze dla osob jawnie przypisanych
         if obj.confidentiality_level == "CONFIDENTIAL":
             if role == "MANAGER":
-                return obj.department == user.profile.department or user in obj.allowed_users.all()
+                return (
+                    obj.department == user.profile.department
+                    or user in obj.allowed_users.all()
+                )
             return user in obj.allowed_users.all()
 
         return False
