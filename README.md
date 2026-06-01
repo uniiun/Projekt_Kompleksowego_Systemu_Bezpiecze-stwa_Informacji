@@ -85,9 +85,9 @@ Dostep do aplikacji po uruchomieniu Dockera:
 2. Jeśli konto ma MFA, backend zwraca `mfa_required: true`, `temp_token` oraz listę `mfa_methods`.
 3. **Krok 2:** weryfikacja drugiego składnika:
    - TOTP (`/api/auth/verify-totp/`) lub
-   - WebAuthn (Windows Hello / klucz FIDO2) przez `/api/auth/webauthn/authenticate/*`.
+   - WebAuthn (Windows Hello - odcisk palca) przez `/api/auth/webauthn/authenticate/*`.
 
-W profilu użytkownika możesz aktywować MFA (TOTP) oraz opcjonalnie WebAuthn (Windows Hello / klucz). Wymagane jest środowisko bezpieczne (HTTPS lub `localhost`).
+W profilu użytkownika możesz aktywować MFA (TOTP) oraz opcjonalnie WebAuthn (Windows Hello - odcisk palca). Wymagane jest środowisko bezpieczne (HTTPS lub `localhost`).
 
 ## Testy backendu
 Uruchom zestaw testów (Django + testy w katalogu `tests`):

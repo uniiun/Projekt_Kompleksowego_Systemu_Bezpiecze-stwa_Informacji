@@ -57,11 +57,8 @@
   - [x] Zintegrować bibliotekę `pyotp` do generowania sekretów kryptograficznych per użytkownik. *(JEST: `backend/accounts/models.py` + `pyotp` w `requirements.txt`)*
   - [x] Stworzyć endpoint do aktywacji MFA (generowanie tajnego klucza oraz kodu QR dla Google Authenticator/Authy). *(ZROBIONE: routing w `backend/config/urls.py`)*
   - [x] Stworzyć endpoint `/api/auth/verify-totp/` sprawdzający poprawność kodu jednorazowego przed wydaniem ostatecznego tokenu JWT. *(ZROBIONE: routing i spięcie z logowaniem)*
-- [ ] **M3.2: Implementacja Komponentu Biometrycznego (Wybór technologii)**
-  - [ ] *Opcja A (Zaawansowana):* Integracja standardu WebAuthn (FIDO2/U2F) umożliwiającego użycie biometrii systemowej (Windows Hello, TouchID/FaceID) za pomocą przeglądarki.
-  - [ ] *Opcja B (Algorytmiczno-Symulacyjna - OpenCV/Python):* Stworzenie modułu przyjmującego plik/zdjęcie (np. odcisk palca, próbka głosu).
-    - [ ] Napisać skrypt w OpenCV ekstrahujący punkty charakterystyczne (minucje w odcisku palca lub spektrogram głosu).
-    - [ ] Stworzyć bazę "wzorców" przypisanych do profili użytkowników i endpoint porównujący przesłany plik z wzorcem z określonym progiem tolerancji (Threshold).
+- [ ] **M3.2: Implementacja Komponentu Biometrycznego (Windows Hello)**
+  - [ ] Integracja WebAuthn umożliwiająca użycie Windows Hello (odcisk palca) za pomocą przeglądarki.
 - [ ] **M3.3: Projekt Procesów Rejestracji i Weryfikacji (Enrollment & Verification)**
   - [ ] Zaimplementować bezpieczny proces rejestracji nowej biometrii (wymagany wcześniejszy stan autoryzacji loginem i hasłem).
   - [ ] Opracować procedury awaryjne (Fallback) w przypadku awarii sensora biometrycznego (np. kody zapasowe).
@@ -86,7 +83,7 @@
   - [ ] Wyznaczyć wskaźniki **FAR** (False Acceptance Rate - współczynnik fałszywych akceptacji) oraz **FRR** (False Rejection Rate - współczynnik fałszywych odrzuceń) dla zaimplementowanego algorytmu/progu dopasowania.
   - [ ] Sporządzić wykres zależności FAR/FRR od progu decyzyjnego (Threshold) i umieścić go w raporcie.
 - [ ] **M5.2: Analiza Podatności na Spoofing i Ataki Prezentacji**
-  - [ ] Przeprowadzić symulowane testy oszukania systemu (np. próba logowania zdjęciem wyświetlonym na telefonie, odtworzeniem nagrania głosu).
+- [ ] Przeprowadzić symulowane testy obejścia Windows Hello (np. próby logowania na niezaufanym urządzeniu lub bez aktywnej weryfikacji użytkownika).
   - [ ] Opisać w dokumentacji wyniki oraz zaproponować mechanizmy obronne (np. algorytmy *Liveness Detection* / wykrywanie żywotności).
 - [ ] **M5.3: Koncepcja Testów Penetracyjnych i Bezpieczeństwa Aplikacji**
   - [ ] Przeprowadzić symulację ataku typu IDOR (Insecure Direct Object Reference) – próba bezpośredniego odpytania API o ID dokumentu `SECRET` przez konto zwykłego pracownika. Potwierdzić w logach, że backend zwraca 403, a zdarzenie jest odnotowane w bazie.

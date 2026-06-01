@@ -7,8 +7,10 @@ todo: generowanie 6 a nie 5 kodow jednorazowych
 todo: potwierdzenie zapisania MFA zanim zamkniesz strone/przejdziesz
 todo: dodanie biometrii
 todo: pelne szyfrowanie plikow w bazie
-todo:
-todo:
+
+
+todo: zmiana hasla co 30 dni
+todo: walidacja hasla
 todo:
 todo:
 todo:

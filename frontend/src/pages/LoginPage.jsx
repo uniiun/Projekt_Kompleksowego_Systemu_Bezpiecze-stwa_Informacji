@@ -254,7 +254,7 @@ const LoginPage = () => {
                         onClick={() => setSelectedMethod('WEBAUTHN')}
                         disabled={loading}
                       >
-                        Windows Hello / klucz
+                        Windows Hello (odcisk palca)
                       </button>
                     )}
                   </div>
@@ -290,14 +290,14 @@ const LoginPage = () => {
 
                 {selectedMethod === 'WEBAUTHN' && (
                   <div className="alert alert-info py-2 small mb-3">
-                    Potwierdź logowanie biometrią Windows Hello lub kluczem bezpieczeństwa.
+                    Potwierdź logowanie biometrią Windows Hello (odcisk palca).
                     <button
                       type="button"
                       className="btn btn-outline-info w-100 mt-3"
                       onClick={handleVerifyWebAuthn}
                       disabled={loading}
                     >
-                      Użyj biometrii / klucza
+                      Użyj Windows Hello
                     </button>
                   </div>
                 )}

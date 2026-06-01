@@ -8,4 +8,3 @@
 - Domyslna rola: EMPLOYEE.
 - Aktywacja/dezaktywacja konta przez ADMIN.
 - Reset MFA przez ADMIN.
-

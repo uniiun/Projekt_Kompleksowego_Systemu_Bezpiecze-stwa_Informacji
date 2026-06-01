@@ -14,4 +14,3 @@
 | Technologie i protokoly | `docs/TECH_PROTOCOLS.md`, `docs/TECH_STACK_DECISIONS.md` | konfiguracja projektu |
 | Aspekty pracy zespolowej | `docs/TEAM_ROLES.md` | organizacja projektu |
 | Czesc badawcza | `docs/RESEARCH_PLAN.md` | plan badan |
-

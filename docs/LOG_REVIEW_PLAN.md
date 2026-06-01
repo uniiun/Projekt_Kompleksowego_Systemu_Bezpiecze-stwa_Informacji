@@ -28,5 +28,3 @@
 - Raport z odchyleniami.
 - Plan korekty uprawnien.
 - Dokumentacja decyzji i zmian.
-
-

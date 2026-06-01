@@ -1,10 +1,9 @@
+from accounts.models import WebAuthnCredential
 from django.contrib.auth.models import User
 from django.test import TestCase
 from documents.models import Department
 from rest_framework import status
 from rest_framework.test import APIClient
-
-from accounts.models import WebAuthnCredential
 
 
 class UserManagementTests(TestCase):
@@ -102,7 +101,4 @@ class UserManagementTests(TestCase):
         self.assertEqual(self.employee.profile.totp_secret, "")
         self.assertEqual(self.employee.profile.mfa_backup_codes, "")
         self.assertFalse(self.employee.profile.webauthn_enabled)
-        self.assertFalse(
-            WebAuthnCredential.objects.filter(user=self.employee).exists()
-        )
-
+        self.assertFalse(WebAuthnCredential.objects.filter(user=self.employee).exists())

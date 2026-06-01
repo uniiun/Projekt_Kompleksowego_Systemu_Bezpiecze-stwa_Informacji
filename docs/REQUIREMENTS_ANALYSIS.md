@@ -51,5 +51,3 @@ uprawnien, z pelnym audytem zdarzen.
 - Brak dostepu do dokumentow spoza uprawnien (403).
 - Rejestracja wszystkich zdarzen dostepu w logach.
 - MFA dziala dla kont z wlaczonym drugim skladnikiem.
-
-

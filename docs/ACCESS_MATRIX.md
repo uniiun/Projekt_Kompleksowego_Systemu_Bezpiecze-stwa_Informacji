@@ -23,4 +23,3 @@
 - Role administracyjne (zarzadzanie uzytkownikami) sa odseparowane od roli audytora.
 - Poziom `SECRET` i `allowed_users` moze ustawic tylko `ADMIN`.
 - Ostatni administrator nie moze zostac zdezaktywowany.
-

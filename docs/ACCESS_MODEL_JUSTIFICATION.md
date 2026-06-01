@@ -27,5 +27,3 @@
 ## Zasada PoLP
 - Domyslna rola nowego uzytkownika to EMPLOYEE.
 - Eskalacja uprawnien wymaga decyzji ADMIN.
-
-

@@ -22,5 +22,3 @@
 1. PoC: logowanie przez OIDC.
 2. Synchronizacja rol i dzialow z katalogiem.
 3. Centralne zarzadzanie MFA.
-
-

@@ -13,4 +13,3 @@
 
 ## Egzekwowanie
 - Logika w `documents/permissions.py` i `documents/views.py`.
-

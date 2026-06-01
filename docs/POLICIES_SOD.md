@@ -5,14 +5,14 @@
 - Hasla nie sa zapisywane w postaci jawnej.
 - Zmiana hasla po incydencie lub podejrzeniu kompromitacji.
 
-## Polityki kluczy i tokenow
+## Polityki tokenow i MFA
 - MFA wymagane dla kont ADMIN i zalecane dla MANAGER.
 - Reset MFA tylko przez ADMIN.
 - Kody zapasowe przechowywane jako zaszyfrowane dane profilu.
 
 ## Urzadzenia biometryczne
 - Rejestracja biometrii tylko na urzadzeniach zaufanych.
-- Dezaktywacja klucza WebAuthn przy utracie urzadzenia.
+- Dezaktywacja poswiadczen WebAuthn (Windows Hello) przy utracie urzadzenia.
 
 ## SoD (separacja obowiazkow)
 - ADMIN: zarzadza kontami i politykami.
@@ -29,5 +29,3 @@
 - Bezpieczne przechowywanie hasel i tokenow.
 - Rozpoznawanie phishingu i socjotechniki.
 - Procedura zglaszania incydentow.
-
-

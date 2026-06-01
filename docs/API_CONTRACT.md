@@ -52,7 +52,7 @@ Endpointy udostępniane przez aplikację backendową do obsługi komunikacji z f
 ```
 
 ### `POST /api/auth/webauthn/register/options/`
-- **Opis:** Generuje opcje rejestracji WebAuthn (Windows Hello / klucz FIDO2).
+- **Opis:** Generuje opcje rejestracji WebAuthn (Windows Hello - odcisk palca).
 - **Wymagane uprawnienia:** Zalogowany
 - **Response (200 OK):**
 ```json
@@ -68,7 +68,7 @@ Endpointy udostępniane przez aplikację backendową do obsługi komunikacji z f
 ```
 
 ### `POST /api/auth/webauthn/register/verify/`
-- **Opis:** Weryfikuje rejestracje WebAuthn i zapisuje klucz.
+- **Opis:** Weryfikuje rejestracje WebAuthn i zapisuje poswiadczenie.
 - **Wymagane uprawnienia:** Zalogowany
 - **Request:**
 ```json

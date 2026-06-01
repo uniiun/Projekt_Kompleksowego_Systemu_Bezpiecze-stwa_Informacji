@@ -11,4 +11,3 @@
 ## Wnioski
 - Dla kont krytycznych rekomendowane WebAuthn.
 - Dla pozostalych kont TOTP jako kompromis koszt/bezpieczenstwo.
-

@@ -15,4 +15,3 @@
 - RBAC + ABAC z PoLP.
 - MFA i WebAuthn.
 - Audyt i przeglad logow.
-

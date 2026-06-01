@@ -9,4 +9,3 @@
 ## Czestotliwosc
 - Szkolenie wstepne przy onboardingu.
 - Szkolenie okresowe raz do roku.
-

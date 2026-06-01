@@ -7,4 +7,3 @@
 ## Spoofing
 - Proby podszycia sie pod wzorzec biometryczny.
 - Ograniczane przez user verification i urzadzenia zaufane.
-

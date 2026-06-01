@@ -11,4 +11,3 @@
 ## Offboarding
 - Dezaktywacja konta przez ADMIN.
 - Reset MFA i usuniecie dostepow specjalnych.
-

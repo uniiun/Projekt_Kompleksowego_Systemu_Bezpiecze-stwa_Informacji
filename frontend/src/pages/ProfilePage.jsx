@@ -138,8 +138,8 @@ const ProfilePage = () => {
                 )}
              </div>
 
-             <div className="p-4 border border-light border-opacity-10 rounded bg-black bg-opacity-20 mt-3">
-                <h5 className="mb-3 text-start text-md-end">Windows Hello / WebAuthn</h5>
+              <div className="p-4 border border-light border-opacity-10 rounded bg-black bg-opacity-20 mt-3">
+                 <h5 className="mb-3 text-start text-md-end">Windows Hello (odcisk palca)</h5>
                 <p className="mb-4 text-start text-md-end">Status:
                   <span className={`ms-2 badge ${user?.profile?.webauthn_enabled ? 'bg-success' : 'bg-secondary'}`}>
                     {user?.profile?.webauthn_enabled ? 'Aktywne' : 'Nieaktywne'}
@@ -151,7 +151,7 @@ const ProfilePage = () => {
                     onClick={handleEnableWebAuthn}
                     disabled={webauthnLoading}
                   >
-                    {webauthnLoading ? 'Rejestrowanie...' : 'Dodaj biometrię'}
+                    {webauthnLoading ? 'Rejestrowanie...' : 'Dodaj odcisk palca'}
                   </button>
                 ) : (
                   <button

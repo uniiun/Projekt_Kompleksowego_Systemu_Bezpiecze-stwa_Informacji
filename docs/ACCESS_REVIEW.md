@@ -8,4 +8,3 @@
 - Sprawdzenie listy uzytkownikow i rol.
 - Porownanie z lista pracownikow aktywnych.
 - Aktualizacja ról i dzialow przez ADMIN.
-

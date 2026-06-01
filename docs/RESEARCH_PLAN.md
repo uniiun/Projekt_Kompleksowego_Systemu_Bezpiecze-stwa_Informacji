@@ -43,4 +43,3 @@
 - Spadek odsetka nieudanych logowan po wdrozeniu MFA.
 - Brak nieautoryzowanego dostepu do `SECRET` w testach.
 - Srednia ocena uzytecznosci >= 4/5 dla wybranej metody MFA.
-

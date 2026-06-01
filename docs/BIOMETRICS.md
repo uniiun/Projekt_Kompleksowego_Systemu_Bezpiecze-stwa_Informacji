@@ -1,11 +1,10 @@
 # Biometria
 
 ## Zakres i wybory technologii
-- Rozpoznawanie twarzy, odcisk palca, teczowka, glos, dynamika pisania.
-- W projekcie wybrano WebAuthn jako warstwe biometrii (Windows Hello).
+- W projekcie pozostaje odcisk palca przez Windows Hello (WebAuthn).
 
 ## Uzasadnienie wyboru
-- Standard FIDO2 i wsparcie systemowe.
+- Standard WebAuthn i wsparcie systemowe.
 - Brak przechowywania surowych danych biometrycznych w aplikacji.
 - Odpornosc na phishing i przechwytywanie hasel.
 
@@ -25,11 +24,9 @@
 - Aplikacja przechowuje jedynie klucz publiczny.
 
 ## Ryzyka
-- Spoofing na poziomie urzadzenia (np. maska/twarz na zdjeciu).
+- Spoofing na poziomie urzadzenia (np. obejscie weryfikacji po stronie sensora).
 - Wymuszenie rejestracji na niezaufanym urzadzeniu.
 
 ## Mitigacje
 - Wymuszenie user verification i ochrona urzadzenia.
-- Reset MFA i usuwanie kluczy po utracie urzadzenia.
-
-
+- Reset MFA i usuwanie poswiadczen WebAuthn po utracie urzadzenia.

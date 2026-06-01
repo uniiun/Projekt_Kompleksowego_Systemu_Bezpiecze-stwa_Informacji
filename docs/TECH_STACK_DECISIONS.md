@@ -9,8 +9,7 @@
 
 ## MFA
 - TOTP: powszechna, lekka metoda.
-- WebAuthn/FIDO2: wysoki poziom bezpieczenstwa.
+- WebAuthn (Windows Hello - odcisk palca): wysoki poziom bezpieczenstwa.
 
 ## Baza danych
 - SQLite w MVP, mozliwosc migracji na Postgres.
-

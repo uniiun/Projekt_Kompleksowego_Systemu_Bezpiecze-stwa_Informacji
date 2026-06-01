@@ -19,9 +19,8 @@
 
 ## Reset MFA
 - ADMIN wykonuje `POST /api/users/{id}/reset-mfa/`.
-- Usuwane sa sekrety TOTP, kody zapasowe i klucze WebAuthn.
+- Usuwane sa sekrety TOTP, kody zapasowe i poswiadczenia WebAuthn.
 
 ## Audyt IAM
 - Logowane akcje: `USER_CREATE`, `USER_ROLE_CHANGE`, `USER_DEPARTMENT_CHANGE`,
   `USER_ACTIVATE`, `USER_DEACTIVATE`, `USER_RESET_MFA`.
-

@@ -3,7 +3,7 @@
 ## Uwierzytelnianie
 - Hasla/PIN: podstawowy skladnik i niski koszt wdrozenia.
 - TOTP: powszechny drugi skladnik dla MFA.
-- WebAuthn/FIDO2: wysoki poziom bezpieczenstwa i odpornosc na phishing.
+- WebAuthn (Windows Hello - odcisk palca): wysoki poziom bezpieczenstwa i odpornosc na phishing.
 
 ## Protokoły i systemy
 - LDAP/Active Directory: centralny katalog tozsamosci.
@@ -12,11 +12,8 @@
 - SAML: integracja SSO w srodowiskach enterprise.
 
 ## Inne technologie
-- RFID/NFC: dostep fizyczny lub identyfikacja uzytkownikow.
 - PKI: certyfikaty i karty inteligentne.
 
 ## Uzasadnienie doboru
 - Standardy powszechnie akceptowane i zgodne z praktyka biznesowa.
 - Latwosc integracji z IdP i centralnym IAM.
-
-

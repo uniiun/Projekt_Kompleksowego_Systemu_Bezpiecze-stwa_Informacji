@@ -10,5 +10,3 @@
 - Dokumentacja wymagan i ryzyk.
 - Macierz uprawnien i zasady SoD.
 - Plan czesci badawczej i raporty.
-
-

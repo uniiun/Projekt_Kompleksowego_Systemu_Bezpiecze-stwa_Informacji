@@ -22,7 +22,7 @@ najmniejszych uprawnien i rejestruje wszystkie zdarzenia dostepu.
 - Szczegoly: `docs/AUTH_METHODS.md`.
 
 ## 5. Biometria
-- W projekcie: WebAuthn (Windows Hello/klucze).
+- W projekcie: WebAuthn (Windows Hello - odcisk palca).
 - Proces enrollment i weryfikacji: `docs/BIOMETRICS.md`.
 
 ## 6. IAM i cykl zycia dostepu
@@ -33,7 +33,7 @@ najmniejszych uprawnien i rejestruje wszystkie zdarzenia dostepu.
 - Logi audytu i plan przegladow: `docs/LOG_REVIEW_PLAN.md`.
 
 ## 8. Polityki i SoD
-- Polityki hasel, kluczy i urzadzen: `docs/POLICIES_SOD.md`.
+- Polityki hasel, tokenow i urzadzen: `docs/POLICIES_SOD.md`.
 - Macierz uprawnien: `docs/ACCESS_MATRIX.md`.
 
 ## 9. Czesc badawcza
@@ -41,4 +41,3 @@ najmniejszych uprawnien i rejestruje wszystkie zdarzenia dostepu.
 
 ## 10. Mapowanie wymagan
 - Tabela zgodnosci: `docs/REQUIREMENTS_TRACEABILITY.md`.
-

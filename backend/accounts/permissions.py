@@ -9,4 +9,3 @@ class IsAdminRole(permissions.BasePermission):
             and getattr(request.user, "profile", None)
             and request.user.profile.role == "ADMIN"
         )
-

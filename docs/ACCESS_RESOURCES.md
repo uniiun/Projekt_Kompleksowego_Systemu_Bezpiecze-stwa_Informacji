@@ -8,4 +8,3 @@
 ## Zasoby fizyczne (opcjonalnie)
 - Serwer aplikacji.
 - Urzadzenia uwierzytelniajace (klucze, telefony).
-
