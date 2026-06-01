@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import mammoth from 'mammoth';
 import apiClient from '../api/apiClient';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -12,6 +13,12 @@ const DocumentDetailsPage = () => {
   const [allDocs, setAllDocs] = useState([]); // Used for security testing
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // File preview state
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewText, setPreviewText] = useState('');
+  const [previewHtml, setPreviewHtml] = useState('');
 
   // Security simulation states
   const [testResult, setTestResult] = useState(null); // { success: boolean, message: string }
@@ -58,12 +65,71 @@ const DocumentDetailsPage = () => {
     }
   };
 
+  const handlePreview = async () => {
+    try {
+      const ext = doc.file ? doc.file.split('.').pop().toLowerCase() : '';
+      
+      if (ext === 'docx') {
+        try {
+          const res = await apiClient.get(`/documents/${id}/download/`);
+          if (res.data.url) {
+            const hostname = window.location.hostname;
+            const fileUrl = `http://${hostname}:8000${res.data.url}`;
+            const fileRes = await fetch(fileUrl);
+            const arrayBuffer = await fileRes.arrayBuffer();
+            
+            const result = await mammoth.convertToHtml({ arrayBuffer });
+            setPreviewHtml(result.value);
+            setPreviewText('');
+            setPreviewUrl('');
+            setShowPreviewModal(true);
+            setTimeout(refreshLogs, 1000);
+            return;
+          }
+        } catch (e) {
+          console.error("Błąd konwersji docx na HTML:", e);
+        }
+      }
+
+      if (['txt', 'csv', 'md'].includes(ext)) {
+        try {
+          const res = await apiClient.get(`/documents/${id}/preview_content/`);
+          if (res.data.type === 'text') {
+            setPreviewText(res.data.content);
+            setPreviewHtml('');
+            setPreviewUrl('');
+            setShowPreviewModal(true);
+            setTimeout(refreshLogs, 1000);
+            return;
+          }
+        } catch (e) {
+          console.error("Błąd podglądu tekstowego", e);
+        }
+      }
+
+      // Fallback for PDF, images, media
+      const res = await apiClient.get(`/documents/${id}/download/`);
+      if (res.data.url) {
+        const hostname = window.location.hostname;
+        setPreviewUrl(`http://${hostname}:8000${res.data.url}`);
+        setPreviewText('');
+        setShowPreviewModal(true);
+        setTimeout(refreshLogs, 1000);
+      } else {
+        alert("Brak pliku do podglądu w tym dokumencie.");
+      }
+    } catch (err) {
+      alert("Błąd podczas ładowania podglądu pliku.");
+    }
+  };
+
   const handleDownload = async () => {
     try {
       const res = await apiClient.get(`/documents/${id}/download/`);
       if (res.data.url) {
+        const hostname = window.location.hostname;
         const link = document.createElement('a');
-        link.href = `http://127.0.0.1:8000${res.data.url}`;
+        link.href = `http://${hostname}:8000${res.data.url}`;
         link.setAttribute('download', doc.file ? doc.file.split('/').pop() : 'download');
         document.body.appendChild(link);
         link.click();
@@ -240,14 +306,23 @@ const DocumentDetailsPage = () => {
           {/* Action Row */}
           <div className="d-flex gap-2 border-top border-light border-opacity-10 pt-4 mt-4 flex-wrap">
             {doc.file ? (
-              <button onClick={handleDownload} className="btn btn-info d-flex align-items-center gap-1 py-2 px-3 shadow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                Pobierz Bezpieczny Plik
-              </button>
+              <>
+                <button onClick={handlePreview} className="btn btn-primary d-flex align-items-center gap-1 py-2 px-3 shadow">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  Podgląd
+                </button>
+                <button onClick={handleDownload} className="btn btn-info d-flex align-items-center gap-1 py-2 px-3 shadow">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Pobierz Bezpieczny Plik
+                </button>
+              </>
             ) : (
               <button disabled className="btn btn-secondary d-flex align-items-center gap-1 py-2 px-3" style={{ opacity: 0.5 }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -414,10 +489,108 @@ const DocumentDetailsPage = () => {
         </div>
       </div>
 
+      {/* Modal for Document Preview */}
+      {showPreviewModal && (
+        <>
+          <div className="modal-backdrop show" style={{ zIndex: 1040, backgroundColor: 'rgba(0,0,0,0.8)' }}></div>
+          <div className="modal show d-block" tabIndex="-1" style={{ zIndex: 1050 }} onClick={(e) => {
+            if (e.target.classList.contains('modal')) setShowPreviewModal(false);
+          }}>
+            <div className="modal-dialog modal-xl modal-dialog-centered" style={{ maxWidth: '90vw' }}>
+              <div className="modal-content bg-dark text-white" style={{ border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+                <div className="modal-header border-bottom border-light border-opacity-10 bg-black bg-opacity-25">
+                  <h5 className="modal-title d-flex align-items-center gap-2 fw-bold">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    Podgląd: {doc.title}
+                  </h5>
+                  <button type="button" className="btn-close btn-close-white" onClick={() => setShowPreviewModal(false)} aria-label="Zamknij"></button>
+                </div>
+                <div className="modal-body p-0 bg-black d-flex justify-content-center align-items-center" style={{ height: '75vh', overflow: 'hidden' }}>
+                  {(() => {
+                    if (previewHtml) {
+                      return (
+                        <div className="w-100 h-100 bg-white p-5 docx-preview-container" style={{ overflowY: 'auto', color: 'black' }} dangerouslySetInnerHTML={{ __html: previewHtml }}>
+                        </div>
+                      );
+                    }
+
+                    if (previewText) {
+                      return (
+                        <div className="w-100 h-100 bg-white p-4" style={{ overflowY: 'auto' }}>
+                          <pre className="text-dark" style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0 }}>
+                            {previewText}
+                          </pre>
+                        </div>
+                      );
+                    }
+
+                    const ext = doc.file ? doc.file.split('.').pop().toLowerCase() : '';
+                    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext);
+                    const isPdf = ext === 'pdf';
+                    const isMedia = ['mp4', 'webm', 'mp3', 'wav'].includes(ext);
+
+                    if (isImage) {
+                      return <img src={previewUrl} alt="Podgląd" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />;
+                    } else if (isPdf || ['txt'].includes(ext)) {
+                      return <iframe src={previewUrl} width="100%" height="100%" style={{ border: 'none', backgroundColor: 'white' }} title="Podgląd pliku" />;
+                    } else if (isMedia) {
+                      return <video src={previewUrl} controls style={{ maxWidth: '100%', maxHeight: '100%' }} />;
+                    } else {
+                      return (
+                        <div className="text-center p-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-3 text-white-50">
+                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                            <polyline points="13 2 13 9 20 9"></polyline>
+                          </svg>
+                          <h4 className="text-white">Brak podglądu dla tego typu pliku</h4>
+                          <p className="text-muted">Twoja przeglądarka nie obsługuje wyświetlania plików typu <strong>.{ext}</strong> w oknie.</p>
+                          <button onClick={() => { setShowPreviewModal(false); handleDownload(); }} className="btn btn-info mt-3">
+                            Pobierz plik, aby go otworzyć
+                          </button>
+                        </div>
+                      );
+                    }
+                  })()}
+                </div>
+                <div className="modal-footer border-top border-light border-opacity-10 bg-black bg-opacity-25">
+                  <button type="button" className="btn btn-outline-light" onClick={() => setShowPreviewModal(false)}>Zamknij podgląd</button>
+                  <button onClick={handleDownload} className="btn btn-info d-flex align-items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Pobierz plik
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(5px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        .docx-preview-container table {
+          border-collapse: collapse;
+          width: 100%;
+          margin-bottom: 1rem;
+        }
+        .docx-preview-container table, .docx-preview-container th, .docx-preview-container td {
+          border: 1px solid #dee2e6;
+        }
+        .docx-preview-container th, .docx-preview-container td {
+          padding: 0.5rem;
+        }
+        .docx-preview-container img {
+          max-width: 100%;
+          height: auto;
         }
       `}</style>
     </div>

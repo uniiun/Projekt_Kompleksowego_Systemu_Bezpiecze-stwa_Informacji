@@ -1,0 +1,5 @@
+[tool.pyrefly]
+preset = "basic"
+python-interpreter-path = "c:/Users/abram/OneDrive/Pulpit/projekty/kontrola_dostepu_do_zasobow_informacyjnych/.venv/Scripts/python.exe"
+project-includes = ["backend"]
+search-path = ["backend"]
