@@ -24,6 +24,7 @@ class Profile(models.Model):
     mfa_enabled = models.BooleanField(default=False)
     totp_secret = models.CharField(max_length=32, blank=True, null=True)
     mfa_backup_codes = models.TextField(blank=True, null=True)
+    webauthn_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"
@@ -68,6 +69,21 @@ class Profile(models.Model):
 
         totp = pyotp.TOTP(self.totp_secret)
         return totp.verify(token)
+
+
+class WebAuthnCredential(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="webauthn_credentials"
+    )
+    credential_id = models.CharField(max_length=255, unique=True)
+    public_key = models.TextField()
+    sign_count = models.PositiveIntegerField(default=0)
+    transports = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_used_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.credential_id[:8]}"
 
 
 # Signal to create profile automatically when user is created

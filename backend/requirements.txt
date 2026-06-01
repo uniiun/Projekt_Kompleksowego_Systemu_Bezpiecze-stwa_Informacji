@@ -16,5 +16,6 @@ PyYAML==6.0.3
 sqlparse==0.5.5
 style==1.1.0
 pyotp==2.9.0
+webauthn==1.11.1
 update==0.0.1
 virtualenv==21.3.3

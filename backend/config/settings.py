@@ -161,3 +161,8 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "ALGORITHM": "HS256",
 }
+
+# WebAuthn (Windows Hello / klucze FIDO2)
+WEBAUTHN_RP_NAME = os.getenv("WEBAUTHN_RP_NAME", "SecureDocs")
+WEBAUTHN_RP_ID = os.getenv("WEBAUTHN_RP_ID", "localhost")
+WEBAUTHN_ORIGIN = os.getenv("WEBAUTHN_ORIGIN", "http://localhost:5173")

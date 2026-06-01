@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../api/apiClient';
 import { QRCodeSVG } from 'qrcode.react';
+import { mapRegistrationOptions, serializeRegistrationCredential } from '../utils/webauthn';
 
 const ProfilePage = () => {
   const { user, refreshUser } = useAuth();
@@ -9,6 +10,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [webauthnLoading, setWebauthnLoading] = useState(false);
 
   const handleEnableMFA = async () => {
     setLoading(true);
@@ -40,6 +42,45 @@ const ProfilePage = () => {
       setError('Błąd podczas wyłączania MFA.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEnableWebAuthn = async () => {
+    if (!window.PublicKeyCredential) {
+      setError('Ta przeglądarka nie obsługuje WebAuthn.');
+      return;
+    }
+    setWebauthnLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const optionsResponse = await apiClient.post('auth/webauthn/register/options/');
+      const publicKey = mapRegistrationOptions(optionsResponse.data.options);
+      const credential = await navigator.credentials.create({ publicKey });
+      const payload = serializeRegistrationCredential(credential);
+      await apiClient.post('auth/webauthn/register/verify/', { credential: payload });
+      setSuccess('Biometria została aktywowana.');
+      await refreshUser();
+    } catch (err) {
+      setError('Błąd podczas aktywacji biometrii.');
+    } finally {
+      setWebauthnLoading(false);
+    }
+  };
+
+  const handleDisableWebAuthn = async () => {
+    if (!window.confirm('Czy na pewno chcesz wyłączyć biometrię?')) return;
+    setWebauthnLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      await apiClient.post('auth/webauthn/disable/');
+      setSuccess('Biometria została wyłączona.');
+      await refreshUser();
+    } catch (err) {
+      setError('Błąd podczas wyłączania biometrii.');
+    } finally {
+      setWebauthnLoading(false);
     }
   };
 
@@ -93,6 +134,32 @@ const ProfilePage = () => {
                     disabled={loading}
                   >
                     {loading ? 'Przetwarzanie...' : 'Dezaktywuj MFA'}
+                  </button>
+                )}
+             </div>
+
+             <div className="p-4 border border-light border-opacity-10 rounded bg-black bg-opacity-20 mt-3">
+                <h5 className="mb-3 text-start text-md-end">Windows Hello / WebAuthn</h5>
+                <p className="mb-4 text-start text-md-end">Status:
+                  <span className={`ms-2 badge ${user?.profile?.webauthn_enabled ? 'bg-success' : 'bg-secondary'}`}>
+                    {user?.profile?.webauthn_enabled ? 'Aktywne' : 'Nieaktywne'}
+                  </span>
+                </p>
+                {!user?.profile?.webauthn_enabled ? (
+                  <button
+                    className="btn btn-primary px-4"
+                    onClick={handleEnableWebAuthn}
+                    disabled={webauthnLoading}
+                  >
+                    {webauthnLoading ? 'Rejestrowanie...' : 'Dodaj biometrię'}
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-outline-danger px-4"
+                    onClick={handleDisableWebAuthn}
+                    disabled={webauthnLoading}
+                  >
+                    {webauthnLoading ? 'Przetwarzanie...' : 'Wyłącz biometrię'}
                   </button>
                 )}
              </div>

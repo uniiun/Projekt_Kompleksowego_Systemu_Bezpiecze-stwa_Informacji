@@ -17,6 +17,12 @@ class AccessLog(models.Model):
         ("UPDATE_DOCUMENT", "Edycja dokumentu"),
         ("DELETE_DOCUMENT", "Usunięcie dokumentu"),
         ("ACCESS_DENIED", "Odmowa dostępu"),
+        ("USER_CREATE", "Utworzenie użytkownika"),
+        ("USER_ROLE_CHANGE", "Zmiana roli użytkownika"),
+        ("USER_DEPARTMENT_CHANGE", "Zmiana działu użytkownika"),
+        ("USER_ACTIVATE", "Aktywacja użytkownika"),
+        ("USER_DEACTIVATE", "Dezaktywacja użytkownika"),
+        ("USER_RESET_MFA", "Reset MFA użytkownika"),
     ]
 
     user = models.ForeignKey(

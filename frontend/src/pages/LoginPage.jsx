@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
+import { mapAuthenticationOptions, serializeAuthenticationCredential } from '../utils/webauthn';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -13,6 +14,8 @@ const LoginPage = () => {
   const [otp, setOtp] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [mfaMethods, setMfaMethods] = useState([]);
+  const [selectedMethod, setSelectedMethod] = useState('TOTP');
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,8 +27,17 @@ const LoginPage = () => {
         password: password
       });
       if (response.data.mfa_required) {
+        const methods = response.data.mfa_methods || [];
         setMfaRequired(true);
         setTempToken(response.data.temp_token || '');
+        setMfaMethods(methods);
+        if (methods.length === 1) {
+          setSelectedMethod(methods[0]);
+        } else if (methods.includes('TOTP')) {
+          setSelectedMethod('TOTP');
+        } else if (methods.length) {
+          setSelectedMethod(methods[0]);
+        }
         return;
       }
       if (response.data.access) {
@@ -33,7 +45,7 @@ const LoginPage = () => {
         navigate('/');
       }
     } catch (err) {
-      setError('Niepoprawny login (email) lub hasło.');
+      setError('Niepoprawny login lub haslo.');
     } finally {
       setLoading(false);
     }
@@ -54,8 +66,17 @@ const LoginPage = () => {
           password: demoPassword
         });
         if (response.data.mfa_required) {
+          const methods = response.data.mfa_methods || [];
           setMfaRequired(true);
           setTempToken(response.data.temp_token || '');
+          setMfaMethods(methods);
+          if (methods.length === 1) {
+            setSelectedMethod(methods[0]);
+          } else if (methods.includes('TOTP')) {
+            setSelectedMethod('TOTP');
+          } else if (methods.length) {
+            setSelectedMethod(methods[0]);
+          }
           setLoading(false);
           return;
         }
@@ -90,10 +111,41 @@ const LoginPage = () => {
     }
   };
 
+  const handleVerifyWebAuthn = async () => {
+    if (!window.PublicKeyCredential) {
+      setError('Ta przeglądarka nie obsługuje WebAuthn.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const optionsResponse = await apiClient.post('/auth/webauthn/authenticate/options/', {
+        temp_token: tempToken
+      });
+      const publicKey = mapAuthenticationOptions(optionsResponse.data.options);
+      const assertion = await navigator.credentials.get({ publicKey });
+      const credential = serializeAuthenticationCredential(assertion);
+      const verifyResponse = await apiClient.post('/auth/webauthn/authenticate/verify/', {
+        temp_token: tempToken,
+        credential
+      });
+      if (verifyResponse.data.access) {
+        login(verifyResponse.data.access);
+        navigate('/');
+      }
+    } catch (err) {
+      setError('Nie udało się zweryfikować biometrii.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleResetMfa = () => {
     setMfaRequired(false);
     setTempToken('');
     setOtp('');
+    setMfaMethods([]);
+    setSelectedMethod('TOTP');
   };
 
   const demoAccounts = [
@@ -136,13 +188,13 @@ const LoginPage = () => {
 
             <form onSubmit={handleLogin}>
               <div className="mb-3">
-                <label className="small text-uppercase tracking-wider font-monospace">E-mail identyfikacyjny</label>
+                <label className="small text-uppercase tracking-wider font-monospace">Login lub e-mail</label>
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   className="form-control"
-                  placeholder="nazwa@example.com"
+                  placeholder="login lub nazwa@example.com"
                   required
                   disabled={loading}
                 />
@@ -182,30 +234,74 @@ const LoginPage = () => {
             </form>
 
             {mfaRequired && (
-              <form onSubmit={handleVerifyMfa} className="mt-4">
-                <div className="alert alert-info py-2 small mb-3">
-                  Wpisz kod z aplikacji uwierzytelniającej (TOTP). Jeśli nie masz dostępu,
-                  użyj jednorazowego kodu zapasowego.
-                </div>
-                <div className="mb-3">
-                  <label className="small text-uppercase tracking-wider font-monospace">Kod MFA (TOTP)</label>
-                  <input
-                    type="text"
-                    value={otp}
-                    onChange={e => setOtp(e.target.value)}
-                    className="form-control"
-                    placeholder="123456"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="btn btn-outline-info w-100 py-2.5 d-flex align-items-center justify-content-center gap-2"
-                  disabled={loading}
-                >
-                  Zweryfikuj kod MFA
-                </button>
+              <div className="mt-4">
+                {mfaMethods.length > 1 && (
+                  <div className="btn-group w-100 mb-3" role="group">
+                    {mfaMethods.includes('TOTP') && (
+                      <button
+                        type="button"
+                        className={`btn ${selectedMethod === 'TOTP' ? 'btn-info' : 'btn-outline-info'}`}
+                        onClick={() => setSelectedMethod('TOTP')}
+                        disabled={loading}
+                      >
+                        Kod TOTP
+                      </button>
+                    )}
+                    {mfaMethods.includes('WEBAUTHN') && (
+                      <button
+                        type="button"
+                        className={`btn ${selectedMethod === 'WEBAUTHN' ? 'btn-info' : 'btn-outline-info'}`}
+                        onClick={() => setSelectedMethod('WEBAUTHN')}
+                        disabled={loading}
+                      >
+                        Windows Hello / klucz
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {selectedMethod !== 'WEBAUTHN' && (
+                  <form onSubmit={handleVerifyMfa}>
+                    <div className="alert alert-info py-2 small mb-3">
+                      Wpisz kod z aplikacji uwierzytelniającej (TOTP). Jeśli nie masz dostępu,
+                      użyj jednorazowego kodu zapasowego.
+                    </div>
+                    <div className="mb-3">
+                      <label className="small text-uppercase tracking-wider font-monospace">Kod MFA (TOTP)</label>
+                      <input
+                        type="text"
+                        value={otp}
+                        onChange={e => setOtp(e.target.value)}
+                        className="form-control"
+                        placeholder="123456"
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="btn btn-outline-info w-100 py-2.5 d-flex align-items-center justify-content-center gap-2"
+                      disabled={loading}
+                    >
+                      Zweryfikuj kod MFA
+                    </button>
+                  </form>
+                )}
+
+                {selectedMethod === 'WEBAUTHN' && (
+                  <div className="alert alert-info py-2 small mb-3">
+                    Potwierdź logowanie biometrią Windows Hello lub kluczem bezpieczeństwa.
+                    <button
+                      type="button"
+                      className="btn btn-outline-info w-100 mt-3"
+                      onClick={handleVerifyWebAuthn}
+                      disabled={loading}
+                    >
+                      Użyj biometrii / klucza
+                    </button>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   className="btn btn-link w-100 mt-2"
@@ -214,7 +310,7 @@ const LoginPage = () => {
                 >
                   Wróć do logowania
                 </button>
-              </form>
+              </div>
             )}
           </div>
         </div>

@@ -61,7 +61,28 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return Document.objects.none()
 
     # Dodawanie nowego dokumentu z walidacja dzialu dla menedzera
+    def _validate_restricted_fields(self, request):
+        role = request.user.profile.role
+        confidentiality_level = request.data.get("confidentiality_level")
+        if role != "ADMIN":
+            if confidentiality_level == "SECRET":
+                return Response(
+                    {"detail": "Tylko ADMIN moze ustawic poziom SECRET."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            if "allowed_users" in request.data:
+                return Response(
+                    {"detail": "Tylko ADMIN moze modyfikowac allowed_users."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+        return None
+
+    # Dodawanie nowego dokumentu z walidacja dzialu dla menedzera
     def create(self, request, *args, **kwargs):
+        restriction_error = self._validate_restricted_fields(request)
+        if restriction_error:
+            return restriction_error
+
         role = request.user.profile.role
         if role == "MANAGER":
             req_dept = request.data.get("department")
@@ -72,6 +93,18 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 )
 
         return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        restriction_error = self._validate_restricted_fields(request)
+        if restriction_error:
+            return restriction_error
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        restriction_error = self._validate_restricted_fields(request)
+        if restriction_error:
+            return restriction_error
+        return super().partial_update(request, *args, **kwargs)
 
     # Zapisuje uzytkownika tworzacego dokument
     def perform_create(self, serializer):

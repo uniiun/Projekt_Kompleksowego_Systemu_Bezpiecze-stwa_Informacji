@@ -29,7 +29,7 @@ apiClient.interceptors.response.use(
     }
     if (error.response && error.response.status === 403) {
       const requestUrl = error.config?.url || '';
-      const isAuthRequest = requestUrl.includes('/auth/login/') || requestUrl.includes('/auth/verify-totp/');
+      const isAuthRequest = requestUrl.includes('/auth/login/') || requestUrl.includes('/auth/verify-totp/') || requestUrl.includes('/auth/webauthn/');
       const skipForbiddenRedirect = error.config?.skipForbiddenRedirect === true;
       if (window.location.pathname !== '/forbidden') {
         if (!isAuthRequest && !skipForbiddenRedirect) {

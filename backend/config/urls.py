@@ -5,6 +5,11 @@ from accounts.views import (
     EnableMFAView,
     UserViewSet,
     VerifyMFAView,
+    WebAuthnAuthenticationOptionsView,
+    WebAuthnAuthenticationVerifyView,
+    WebAuthnDisableView,
+    WebAuthnRegistrationOptionsView,
+    WebAuthnRegistrationVerifyView,
 )
 from audit.views import AccessLogViewSet, SystemDiagnosticsView
 from django.conf import settings
@@ -36,6 +41,31 @@ urlpatterns = [
     path("api/auth/verify-totp/", VerifyMFAView.as_view(), name="verify_totp"),
     path("api/auth/mfa/enable/", EnableMFAView.as_view(), name="enable_mfa"),
     path("api/auth/mfa/disable/", DisableMFAView.as_view(), name="disable_mfa"),
+    path(
+        "api/auth/webauthn/register/options/",
+        WebAuthnRegistrationOptionsView.as_view(),
+        name="webauthn_register_options",
+    ),
+    path(
+        "api/auth/webauthn/register/verify/",
+        WebAuthnRegistrationVerifyView.as_view(),
+        name="webauthn_register_verify",
+    ),
+    path(
+        "api/auth/webauthn/authenticate/options/",
+        WebAuthnAuthenticationOptionsView.as_view(),
+        name="webauthn_authenticate_options",
+    ),
+    path(
+        "api/auth/webauthn/authenticate/verify/",
+        WebAuthnAuthenticationVerifyView.as_view(),
+        name="webauthn_authenticate_verify",
+    ),
+    path(
+        "api/auth/webauthn/disable/",
+        WebAuthnDisableView.as_view(),
+        name="webauthn_disable",
+    ),
     path(
         "api/diagnostics/", SystemDiagnosticsView.as_view(), name="system_diagnostics"
     ),

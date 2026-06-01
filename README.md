@@ -82,16 +82,23 @@ Dostep do aplikacji po uruchomieniu Dockera:
 
 ## Logowanie wieloetapowe (MFA)
 1. **Krok 1:** login i hasło (`/api/auth/login/`).
-2. Jeśli konto ma MFA, backend zwraca `mfa_required: true` oraz `temp_token`.
-3. **Krok 2:** weryfikacja kodu TOTP (`/api/auth/verify-totp/`) z `token` i `temp_token`.
+2. Jeśli konto ma MFA, backend zwraca `mfa_required: true`, `temp_token` oraz listę `mfa_methods`.
+3. **Krok 2:** weryfikacja drugiego składnika:
+   - TOTP (`/api/auth/verify-totp/`) lub
+   - WebAuthn (Windows Hello / klucz FIDO2) przez `/api/auth/webauthn/authenticate/*`.
 
-W profilu użytkownika możesz aktywować MFA i wygenerować kod QR oraz kody zapasowe.
+W profilu użytkownika możesz aktywować MFA (TOTP) oraz opcjonalnie WebAuthn (Windows Hello / klucz). Wymagane jest środowisko bezpieczne (HTTPS lub `localhost`).
 
 ## Testy backendu
 Uruchom zestaw testów (Django + testy w katalogu `tests`):
 ```bash
 python tests/run_tests.py
 ```
+
+## Dokumentacja dodatkowa
+- `docs/IAM_LIFECYCLE.md` - onboarding/offboarding i cykl zycia kont.
+- `docs/ACCESS_MATRIX.md` - macierz uprawnien i SoD.
+- `docs/RESEARCH_PLAN.md` - plan czesci badawczej.
 
 ## Struktura Uzytkownikow i Uprawnien
 
