@@ -99,6 +99,27 @@ python tests/run_tests.py
 - `docs/IAM_LIFECYCLE.md` - onboarding/offboarding i cykl zycia kont.
 - `docs/ACCESS_MATRIX.md` - macierz uprawnien i SoD.
 - `docs/RESEARCH_PLAN.md` - plan czesci badawczej.
+- `docs/REQUIREMENTS_ANALYSIS.md` - analiza wymagan i zasobow.
+- `docs/ACCESS_RESOURCES.md` - identyfikacja zasobow.
+- `docs/RISK_ASSESSMENT.md` - skrocona analiza ryzyka.
+- `docs/AUTH_METHODS.md` - dobor metod uwierzytelniania.
+- `docs/AUTH_POLICIES.md` - polityka hasel i kont.
+- `docs/BIOMETRICS.md` - biometria i proces enrollment.
+- `docs/BIOMETRIC_RISKS.md` - FAR/FRR i spoofing.
+- `docs/ACCESS_MODEL_JUSTIFICATION.md` - uzasadnienie RBAC/ABAC.
+- `docs/AUTHZ_RULES.md` - reguly autoryzacji.
+- `docs/POLICIES_SOD.md` - polityki i separacja obowiazkow.
+- `docs/LOG_REVIEW_PLAN.md` - plan przegladu logow.
+- `docs/ACCESS_REVIEW.md` - przeglad uprawnien.
+- `docs/IAM_PROCESS.md` - procesy IAM.
+- `docs/IAM_IDP_CONCEPT.md` - koncepcja IdP/LDAP.
+- `docs/TECH_PROTOCOLS.md` - protokoly i technologie.
+- `docs/TECH_STACK_DECISIONS.md` - uzasadnienie stacku.
+- `docs/MFA_COMPARISON.md` - porownanie konfiguracji MFA.
+- `docs/SECURITY_TRAINING.md` - szkolenia uzytkownikow.
+- `docs/TEAM_ROLES.md` - role w zespole.
+- `docs/THESIS_OVERVIEW.md` - dokumentacja glowna (wersja akademicka).
+- `docs/REQUIREMENTS_TRACEABILITY.md` - mapowanie wymagan do dokumentow i systemu.
 
 ## Struktura Uzytkownikow i Uprawnien
 
