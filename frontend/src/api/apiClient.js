@@ -31,6 +31,16 @@ apiClient.interceptors.response.use(
       const requestUrl = error.config?.url || '';
       const isAuthRequest = requestUrl.includes('/auth/login/') || requestUrl.includes('/auth/verify-totp/') || requestUrl.includes('/auth/webauthn/');
       const skipForbiddenRedirect = error.config?.skipForbiddenRedirect === true;
+
+      // Osobna obsluga wygasnietego hasla
+      const code = error.response?.data?.code;
+      if (code === 'PASSWORD_EXPIRED') {
+        if (window.location.pathname !== '/profile') {
+          window.location.href = '/profile?expired=true';
+        }
+        return Promise.reject(error);
+      }
+
       if (window.location.pathname !== '/forbidden') {
         if (!isAuthRequest && !skipForbiddenRedirect) {
           window.location.href = '/forbidden';

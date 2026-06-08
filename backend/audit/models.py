@@ -77,3 +77,24 @@ class AccessLog(models.Model):
         ).encode("utf-8")
         payload = self.build_hash_payload(prev_hash).encode("utf-8")
         return hmac.new(secret, payload, hashlib.sha256).hexdigest()
+
+    # Automatyczne obliczanie skrotow lancucha przy kazdym zapisie nowego logu
+    def save(self, *args, **kwargs):
+        hashing_enabled = getattr(settings, "AUDIT_HASHING_ENABLED", False)
+        is_new = self.pk is None
+        update_fields = kwargs.get("update_fields")
+
+        # Obliczanie skrotow tylko przy tworzeniu nowego logu
+        if hashing_enabled and is_new and not update_fields:
+            previous_log = AccessLog.objects.order_by("-created_at", "-id").first()
+            prev_hash = previous_log.entry_hash if previous_log else ""
+            self.prev_hash = prev_hash
+            # Pierwsze zapisanie - bez skrotu (auto_now_add wypelni created_at)
+            super().save(*args, **kwargs)
+            # Po zapisie mamy dostep do created_at - obliczamy skrot z finalnym timestampem
+            # Uzywamy bezposredniego update() aby uniknac konfliktu force_insert/update_fields
+            entry_hash = self.calculate_entry_hash(prev_hash)
+            AccessLog.objects.filter(pk=self.pk).update(entry_hash=entry_hash)
+            self.entry_hash = entry_hash
+        else:
+            super().save(*args, **kwargs)

@@ -1,19 +1,30 @@
-import zipfile
+import os
 import xml.etree.ElementTree as ET
+import zipfile
 
 from django.db import models
+from django.http import HttpResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from .encryption import decrypt_bytes, encrypt_bytes
 from .models import Department, Document
+from .permissions import IsAuthorizedForDocument
+from .serializers import DepartmentSerializer, DocumentSerializer
 
-def get_docx_text(path):
+
+def _get_docx_text_from_bytes(raw_bytes):
+    # Wyciagniecie tekstu z pliku docx przekazanego jako bajty
+    import io
+
     try:
-        with zipfile.ZipFile(path) as document:
+        with zipfile.ZipFile(io.BytesIO(raw_bytes)) as document:
             xml_content = document.read("word/document.xml")
         tree = ET.XML(xml_content)
-        WORD_NAMESPACE = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+        WORD_NAMESPACE = (
+            "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+        )
         PARA = WORD_NAMESPACE + "p"
         TEXT = WORD_NAMESPACE + "t"
         paragraphs = []
@@ -24,8 +35,17 @@ def get_docx_text(path):
         return "\n".join(paragraphs)
     except Exception as e:
         return f"Błąd odczytu pliku docx: {str(e)}"
-from .permissions import IsAuthorizedForDocument
-from .serializers import DepartmentSerializer, DocumentSerializer
+
+
+def _read_file_bytes(instance):
+    # Wczytanie bajtow pliku z dysku; deszyfrowanie jesli plik jest zaszyfrowany
+    if not instance.file:
+        return None
+    with open(instance.file.path, "rb") as f:
+        raw = f.read()
+    if instance.file_encrypted:
+        raw = decrypt_bytes(raw)
+    return raw
 
 
 class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -80,7 +100,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
         return Document.objects.none()
 
-    # Dodawanie nowego dokumentu z walidacja dzialu dla menedzera
+    # Walidacja ograniczen dla menedzera i nie-admina
     def _validate_restricted_fields(self, request):
         role = request.user.profile.role
         confidentiality_level = request.data.get("confidentiality_level")
@@ -126,38 +146,81 @@ class DocumentViewSet(viewsets.ModelViewSet):
             return restriction_error
         return super().partial_update(request, *args, **kwargs)
 
-    # Zapisuje uzytkownika tworzacego dokument
+    # Zapisanie dokumentu i zaszyfrowanie przeslanych plikow
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        instance = serializer.save(created_by=self.request.user)
+        self._encrypt_file_if_present(instance)
 
-    # Pobieranie linku do pobrania pliku
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        # Szyfrowanie tylko jesli w tym zapytaniu przeslano nowy plik
+        if "file" in self.request.FILES:
+            self._encrypt_file_if_present(instance)
+
+    def _encrypt_file_if_present(self, instance):
+        # Szyfrowanie pliku na dysku za pomoca Fernet po pomyslnym zapisie
+        if not instance.file:
+            return
+        try:
+            with open(instance.file.path, "rb") as f:
+                raw = f.read()
+            encrypted = encrypt_bytes(raw)
+            with open(instance.file.path, "wb") as f:
+                f.write(encrypted)
+            instance.file_encrypted = True
+            instance.save(update_fields=["file_encrypted"])
+        except Exception:
+            pass
+
+    # Pobieranie pliku - odszyfrowanie w locie i zwrocenie jako strumien
     @action(detail=True, methods=["get"])
     def download(self, request, pk=None):
         _ = pk
         instance = self.get_object()
-        if instance.file:
-            return Response({"url": instance.file.url})
-        return Response({"detail": "Brak pliku."}, status=status.HTTP_404_NOT_FOUND)
+        if not instance.file:
+            return Response({"detail": "Brak pliku."}, status=status.HTTP_404_NOT_FOUND)
 
+        raw = _read_file_bytes(instance)
+        if raw is None:
+            return Response(
+                {"detail": "Nie mozna odczytac pliku."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        filename = os.path.basename(instance.file.name)
+        response = HttpResponse(raw, content_type="application/octet-stream")
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        response["Content-Length"] = len(raw)
+        # Zezwolenie na otwarcie w nowej karcie przez przeglądarkę
+        response["X-Frame-Options"] = "ALLOWALL"
+        return response
+
+    # Podglad zawartosci pliku - odszyfrowanie w locie
     @action(detail=True, methods=["get"])
     def preview_content(self, request, pk=None):
         _ = pk
         instance = self.get_object()
         if not instance.file:
             return Response({"detail": "Brak pliku."}, status=status.HTTP_404_NOT_FOUND)
-        
-        file_path = instance.file.path
-        ext = file_path.split('.')[-1].lower() if '.' in file_path else ''
-        
-        if ext == 'docx':
-            text = get_docx_text(file_path)
+
+        raw = _read_file_bytes(instance)
+        if raw is None:
+            return Response(
+                {"detail": "Nie mozna odczytac pliku."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        file_path = instance.file.name
+        ext = file_path.split(".")[-1].lower() if "." in file_path else ""
+
+        if ext == "docx":
+            text = _get_docx_text_from_bytes(raw)
             return Response({"type": "text", "content": text})
-        elif ext in ['txt', 'csv', 'md']:
+        elif ext in ["txt", "csv", "md"]:
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    text = f.read()
+                text = raw.decode("utf-8")
                 return Response({"type": "text", "content": text})
             except Exception as e:
                 return Response({"type": "error", "content": str(e)})
-        
+
         return Response({"type": "unsupported", "content": ""})

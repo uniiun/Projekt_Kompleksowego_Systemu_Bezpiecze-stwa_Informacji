@@ -63,6 +63,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     department_name = serializers.CharField(source="department.name", read_only=True)
+    password_expired = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -72,7 +73,16 @@ class ProfileSerializer(serializers.ModelSerializer):
             "department_name",
             "mfa_enabled",
             "webauthn_enabled",
+            "password_changed_at",
+            "password_expired",
         ]
+
+    def get_password_expired(self, obj):
+        from django.utils import timezone
+
+        if not obj.password_changed_at:
+            return True
+        return (timezone.now() - obj.password_changed_at).days >= 30
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -134,6 +144,8 @@ class UserAdminSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        from django.utils import timezone
+
         profile_data = validated_data.pop("profile", {})
         role = profile_data.get("role", "EMPLOYEE")
         department = profile_data.get("department")
@@ -143,10 +155,13 @@ class UserAdminSerializer(serializers.ModelSerializer):
         profile = user.profile
         profile.role = role
         profile.department = department
-        profile.save(update_fields=["role", "department"])
+        profile.password_changed_at = timezone.now()
+        profile.save(update_fields=["role", "department", "password_changed_at"])
         return user
 
     def update(self, instance, validated_data):
+        from django.utils import timezone
+
         profile_data = validated_data.pop("profile", {})
         password = validated_data.pop("password", None)
 
@@ -155,6 +170,9 @@ class UserAdminSerializer(serializers.ModelSerializer):
 
         if password:
             instance.set_password(password)
+            profile = instance.profile
+            profile.password_changed_at = timezone.now()
+            profile.save(update_fields=["password_changed_at"])
 
         instance.save()
 

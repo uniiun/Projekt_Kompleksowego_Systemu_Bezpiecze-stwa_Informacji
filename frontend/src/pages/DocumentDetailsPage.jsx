@@ -13,7 +13,7 @@ const DocumentDetailsPage = () => {
   const [allDocs, setAllDocs] = useState([]); // Used for security testing
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // File preview state
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -68,26 +68,20 @@ const DocumentDetailsPage = () => {
   const handlePreview = async () => {
     try {
       const ext = doc.file ? doc.file.split('.').pop().toLowerCase() : '';
-      
+
       if (ext === 'docx') {
         try {
-          const res = await apiClient.get(`/documents/${id}/download/`);
-          if (res.data.url) {
-            const hostname = window.location.hostname;
-            const fileUrl = `http://${hostname}:8000${res.data.url}`;
-            const fileRes = await fetch(fileUrl);
-            const arrayBuffer = await fileRes.arrayBuffer();
-            
-            const result = await mammoth.convertToHtml({ arrayBuffer });
-            setPreviewHtml(result.value);
-            setPreviewText('');
-            setPreviewUrl('');
-            setShowPreviewModal(true);
-            setTimeout(refreshLogs, 1000);
-            return;
-          }
+          // Pobieranie odszyfrowanego pliku jako arraybuffer
+          const res = await apiClient.get(`/documents/${id}/download/`, { responseType: 'arraybuffer' });
+          const result = await mammoth.convertToHtml({ arrayBuffer: res.data });
+          setPreviewHtml(result.value);
+          setPreviewText('');
+          setPreviewUrl('');
+          setShowPreviewModal(true);
+          setTimeout(refreshLogs, 1000);
+          return;
         } catch (e) {
-          console.error("Błąd konwersji docx na HTML:", e);
+          console.error('Blad konwersji docx na HTML:', e);
         }
       }
 
@@ -103,44 +97,41 @@ const DocumentDetailsPage = () => {
             return;
           }
         } catch (e) {
-          console.error("Błąd podglądu tekstowego", e);
+          console.error('Blad podgladu tekstowego', e);
         }
       }
 
-      // Fallback for PDF, images, media
-      const res = await apiClient.get(`/documents/${id}/download/`);
-      if (res.data.url) {
-        const hostname = window.location.hostname;
-        setPreviewUrl(`http://${hostname}:8000${res.data.url}`);
-        setPreviewText('');
-        setShowPreviewModal(true);
-        setTimeout(refreshLogs, 1000);
-      } else {
-        alert("Brak pliku do podglądu w tym dokumencie.");
-      }
+      // Fallback dla PDF, obrazow, mediow - tworzymy tymczasowy URL z bloba
+      const blobRes = await apiClient.get(`/documents/${id}/download/`, { responseType: 'blob' });
+      const blobUrl = URL.createObjectURL(blobRes.data);
+      setPreviewUrl(blobUrl);
+      setPreviewText('');
+      setPreviewHtml('');
+      setShowPreviewModal(true);
+      setTimeout(refreshLogs, 1000);
     } catch (err) {
-      alert("Błąd podczas ładowania podglądu pliku.");
+      alert('Blad podczas ladowania podgladu pliku.');
     }
   };
 
   const handleDownload = async () => {
     try {
-      const res = await apiClient.get(`/documents/${id}/download/`);
-      if (res.data.url) {
-        const hostname = window.location.hostname;
-        const link = document.createElement('a');
-        link.href = `http://${hostname}:8000${res.data.url}`;
-        link.setAttribute('download', doc.file ? doc.file.split('/').pop() : 'download');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        setTimeout(refreshLogs, 1000);
-      } else {
-        alert("Brak pliku do pobrania w tym dokumencie.");
-      }
+      // Pobieranie odszyfrowanego pliku jako blob i inicjowanie pobierania
+      const res = await apiClient.get(`/documents/${id}/download/`, { responseType: 'blob' });
+      const blobUrl = URL.createObjectURL(res.data);
+      const filename = doc.file ? doc.file.split('/').pop() : 'download';
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.setAttribute('download', filename);
+      link.setAttribute('target', '_blank');
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+      setTimeout(refreshLogs, 1000);
     } catch (err) {
-      alert("Błąd podczas pobierania pliku.");
+      alert('Blad podczas pobierania pliku.');
     }
   };
 

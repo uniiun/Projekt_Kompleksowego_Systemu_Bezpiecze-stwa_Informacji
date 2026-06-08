@@ -1,4 +1,5 @@
 from accounts.views import (
+    ChangePasswordView,
     CurrentUserView,
     CustomTokenObtainPairView,
     DisableMFAView,
@@ -41,6 +42,11 @@ urlpatterns = [
     path("api/auth/verify-totp/", VerifyMFAView.as_view(), name="verify_totp"),
     path("api/auth/mfa/enable/", EnableMFAView.as_view(), name="enable_mfa"),
     path("api/auth/mfa/disable/", DisableMFAView.as_view(), name="disable_mfa"),
+    path(
+        "api/auth/change-password/",
+        ChangePasswordView.as_view(),
+        name="change_password",
+    ),
     path(
         "api/auth/webauthn/register/options/",
         WebAuthnRegistrationOptionsView.as_view(),

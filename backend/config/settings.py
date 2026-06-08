@@ -68,6 +68,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     # "django.middleware.clickjacking.XFrameOptionsMiddleware", # Zablokowane dla iframe podglądu PDF
     "audit.middleware.AuditMiddleware",
+    "accounts.middleware.PasswordExpiryMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

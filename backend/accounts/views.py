@@ -576,3 +576,48 @@ class WebAuthnDisableView(APIView):
         profile.webauthn_enabled = False
         profile.save(update_fields=["webauthn_enabled"])
         return Response({"webauthn_enabled": False}, status=status.HTTP_200_OK)
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+
+        if not old_password or not new_password:
+            return Response(
+                {"detail": "Stare i nowe hasło są wymagane."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not user.check_password(old_password):
+            return Response(
+                {"detail": "Niepoprawne obecne hasło."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Walidacja nowego hasla za pomoca walidatorow Django
+        from django.contrib.auth.password_validation import validate_password
+        from django.core.exceptions import ValidationError as DjangoValidationError
+
+        try:
+            validate_password(new_password, user=user)
+        except DjangoValidationError as exc:
+            return Response(
+                {"detail": list(exc.messages)}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user.set_password(new_password)
+        user.save()
+
+        # Uaktualnienie daty zmiany hasla w profilu
+        profile = user.profile
+        profile.password_changed_at = timezone.now()
+        profile.save(update_fields=["password_changed_at"])
+
+        return Response(
+            {"detail": "Hasło zostało pomyślnie zmienione."},
+            status=status.HTTP_200_OK,
+        )

@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 
 class Profile(models.Model):
@@ -25,6 +26,8 @@ class Profile(models.Model):
     totp_secret = models.CharField(max_length=32, blank=True, null=True)
     mfa_backup_codes = models.TextField(blank=True, null=True)
     webauthn_enabled = models.BooleanField(default=False)
+    # Data ostatniej zmiany hasla (wymog polityki zmiany co 30 dni)
+    password_changed_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"
@@ -43,7 +46,7 @@ class Profile(models.Model):
         if not self.mfa_backup_codes:
             codes = [
                 "".join(random.choices(string.ascii_uppercase + string.digits, k=8))
-                for _ in range(5)
+                for _ in range(6)
             ]
             self.mfa_backup_codes = ",".join(codes)
 
