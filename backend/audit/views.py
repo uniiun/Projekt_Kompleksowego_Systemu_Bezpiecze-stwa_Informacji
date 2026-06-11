@@ -1,3 +1,4 @@
+from accounts.permissions import IsAdminRole
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import permissions, status, viewsets
@@ -37,7 +38,7 @@ class AccessLogViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SystemDiagnosticsView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
 
     @staticmethod
     def _normalize_jwt_algorithm(jwt_algorithm):

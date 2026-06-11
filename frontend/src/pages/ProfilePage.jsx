@@ -5,6 +5,49 @@ import apiClient from '../api/apiClient';
 import { QRCodeSVG } from 'qrcode.react';
 import { mapRegistrationOptions, serializeRegistrationCredential } from '../utils/webauthn';
 
+// Ocena sily hasla - zwraca obiekt z poziomem (0-5), etykieta i kolorem
+const evaluatePasswordStrength = (password) => {
+  if (!password) return { level: 0, label: '', color: '' };
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  if (score <= 1) return { level: 1, label: 'Bardzo słabe', color: '#ef4444' };
+  if (score === 2) return { level: 2, label: 'Słabe', color: '#f97316' };
+  if (score === 3) return { level: 3, label: 'Średnie', color: '#eab308' };
+  if (score === 4) return { level: 4, label: 'Silne', color: '#22c55e' };
+  return { level: 5, label: 'Bardzo silne', color: '#10b981' };
+};
+
+const PasswordStrengthBar = ({ password }) => {
+  const strength = evaluatePasswordStrength(password);
+  if (!password) return null;
+  const segments = 5;
+  return (
+    <div className="mt-2">
+      <div className="d-flex gap-1 mb-1">
+        {Array.from({ length: segments }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              flex: 1,
+              height: '4px',
+              borderRadius: '2px',
+              backgroundColor: i < strength.level ? strength.color : 'rgba(255,255,255,0.1)',
+              transition: 'background-color 0.3s ease',
+            }}
+          />
+        ))}
+      </div>
+      <span style={{ fontSize: '0.72rem', color: strength.color, fontWeight: 600 }}>
+        {strength.label}
+      </span>
+    </div>
+  );
+};
+
 const ProfilePage = () => {
   const { user, refreshUser } = useAuth();
   const location = useLocation();
@@ -208,6 +251,7 @@ const ProfilePage = () => {
                       onChange={e => setPwdNew(e.target.value)}
                       required
                     />
+                    <PasswordStrengthBar password={pwdNew} />
                   </div>
                   <div className="mb-3">
                     <label className="form-label small text-white-50">Powtórz nowe hasło</label>

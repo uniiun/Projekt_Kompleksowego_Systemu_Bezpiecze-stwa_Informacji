@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
 import { mapAuthenticationOptions, serializeAuthenticationCredential } from '../utils/webauthn';
 
 const LoginPage = () => {
+  const [searchParams] = useSearchParams();
+  const isTimeout = searchParams.get('timeout') === 'true';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -183,6 +185,16 @@ const LoginPage = () => {
                   <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
                 {error}
+              </div>
+            )}
+
+            {isTimeout && (
+              <div className="alert alert-warning d-flex align-items-center gap-2 border border-warning border-opacity-20 bg-warning bg-opacity-10 text-warning rounded-3 mb-3" style={{ fontSize: '0.85rem' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Zostałeś automatycznie wylogowany z powodu 15 minut bezczynności.
               </div>
             )}
 

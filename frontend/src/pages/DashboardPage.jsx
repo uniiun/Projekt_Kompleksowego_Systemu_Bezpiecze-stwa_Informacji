@@ -31,14 +31,16 @@ const DashboardPage = () => {
           logsCount = logsRes.data.length;
         }
 
-        try {
-          const diagRes = await apiClient.get('/diagnostics/');
-          setDiagnostics(diagRes.data);
-          setDiagnosticsError(null);
-        } catch (diagErr) {
-          console.error('Błąd pobierania danych diagnostycznych:', diagErr);
-          setDiagnostics(null);
-          setDiagnosticsError('Brak połączenia z API diagnostyki');
+        if (role === 'ADMIN') {
+          try {
+            const diagRes = await apiClient.get('/diagnostics/');
+            setDiagnostics(diagRes.data);
+            setDiagnosticsError(null);
+          } catch (diagErr) {
+            console.error('Błąd pobierania danych diagnostycznych:', diagErr);
+            setDiagnostics(null);
+            setDiagnosticsError('Brak połączenia z API diagnostyki');
+          }
         }
 
         setStats({ docsCount, logsCount });
@@ -383,66 +385,68 @@ const DashboardPage = () => {
       </div>
 
       {/* Cyber Diagnostics Dashboard Widget */}
-      <div className="card p-4 border border-light border-opacity-10 mt-4 overflow-hidden position-relative">
-        {/* Pulsing visual trace radar */}
-        <div className="position-absolute end-0 top-0 m-4 text-primary d-flex align-items-center gap-1.5 font-monospace small tracking-wider" style={{ opacity: 0.65 }}>
-          <span className="d-inline-block rounded-circle bg-success" style={{ width: '8px', height: '8px', boxShadow: '0 0 8px #10b981', animation: 'blink 1.5s infinite' }}></span>
-          NOD-ENFORCER: {diagnostics?.service_status || 'NIEDOSTĘPNE'}
+      {role === 'ADMIN' && (
+        <div className="card p-4 border border-light border-opacity-10 mt-4 overflow-hidden position-relative">
+          {/* Pulsing visual trace radar */}
+          <div className="position-absolute end-0 top-0 m-4 text-primary d-flex align-items-center gap-1.5 font-monospace small tracking-wider" style={{ opacity: 0.65 }}>
+            <span className="d-inline-block rounded-circle bg-success" style={{ width: '8px', height: '8px', boxShadow: '0 0 8px #10b981', animation: 'blink 1.5s infinite' }}></span>
+            NOD-ENFORCER: {diagnostics?.service_status || 'NIEDOSTĘPNE'}
+          </div>
+
+          <h5 className="text-white fw-bold d-flex align-items-center gap-2 mb-3 border-bottom border-light border-opacity-10 pb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" className="me-1">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            Konsola Diagnostyczna Tarczy Bezpieczeństwa
+          </h5>
+
+          {diagnosticsError && (
+            <div className="alert alert-warning py-2 px-3 mb-3" role="alert" style={{ fontSize: '0.8rem' }}>
+              {diagnosticsError}
+            </div>
+          )}
+
+          <div className="row g-4 text-center mt-1">
+            <div className="col-lg-3 col-sm-6 col-12">
+              <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
+                <span className="text-muted small block uppercase font-monospace">Standard Szyfrowania</span>
+                <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>{encryptionLabel}</strong>
+                <small className="text-muted small block mt-1" style={{ fontSize: '0.7rem' }}>
+                  TLS: {diagnostics?.encryption_in_transit_enabled ? 'Wymuszone' : 'Tryb DEV'}
+                </small>
+              </div>
+            </div>
+
+            <div className="col-lg-3 col-sm-6 col-12">
+              <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
+                <span className="text-muted small block uppercase font-monospace">Integralność Audytu</span>
+                <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>{auditIntegrityLabel}</strong>
+                <small className="text-muted small block mt-1" style={{ fontSize: '0.7rem' }}>
+                  {auditIntegrityStatus} • Zdarzenia 24h: {diagnostics?.recent_audit_events_24h ?? 0}
+                </small>
+              </div>
+            </div>
+
+            <div className="col-lg-3 col-sm-6 col-12">
+              <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
+                <span className="text-muted small block uppercase font-monospace">Poziom Zagrożeń</span>
+                <strong className={`${threatClass} d-block mt-1 font-monospace`} style={{ letterSpacing: '0.5px', textShadow: '0 0 10px rgba(16, 185, 129, 0.2)' }}>{threatLabel}</strong>
+                <small className="text-white-50 small block mt-1" style={{ fontSize: '0.7rem' }}>
+                  Odmowy: 1h={deniedLast1h}, 24h={deniedLast24h}
+                </small>
+              </div>
+            </div>
+
+            <div className="col-lg-3 col-sm-6 col-12">
+              <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
+                <span className="text-muted small block uppercase font-monospace">Baza Danych RBAC</span>
+                <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>{dbEngineLabel}</strong>
+                <small className="text-info small block mt-1" style={{ fontSize: '0.7rem' }}>Logi: {diagnostics?.total_logs ?? 0}</small>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <h5 className="text-white fw-bold d-flex align-items-center gap-2 mb-3 border-bottom border-light border-opacity-10 pb-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" className="me-1">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-          </svg>
-          Konsola Diagnostyczna Tarczy Bezpieczeństwa
-        </h5>
-
-        {diagnosticsError && (
-          <div className="alert alert-warning py-2 px-3 mb-3" role="alert" style={{ fontSize: '0.8rem' }}>
-            {diagnosticsError}
-          </div>
-        )}
-
-        <div className="row g-4 text-center mt-1">
-          <div className="col-lg-3 col-sm-6 col-12">
-            <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
-              <span className="text-muted small block uppercase font-monospace">Standard Szyfrowania</span>
-              <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>{encryptionLabel}</strong>
-              <small className="text-muted small block mt-1" style={{ fontSize: '0.7rem' }}>
-                TLS: {diagnostics?.encryption_in_transit_enabled ? 'Wymuszone' : 'Tryb DEV'}
-              </small>
-            </div>
-          </div>
-
-          <div className="col-lg-3 col-sm-6 col-12">
-            <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
-              <span className="text-muted small block uppercase font-monospace">Integralność Audytu</span>
-              <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>{auditIntegrityLabel}</strong>
-              <small className="text-muted small block mt-1" style={{ fontSize: '0.7rem' }}>
-                {auditIntegrityStatus} • Zdarzenia 24h: {diagnostics?.recent_audit_events_24h ?? 0}
-              </small>
-            </div>
-          </div>
-
-          <div className="col-lg-3 col-sm-6 col-12">
-            <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
-              <span className="text-muted small block uppercase font-monospace">Poziom Zagrożeń</span>
-              <strong className={`${threatClass} d-block mt-1 font-monospace`} style={{ letterSpacing: '0.5px', textShadow: '0 0 10px rgba(16, 185, 129, 0.2)' }}>{threatLabel}</strong>
-              <small className="text-white-50 small block mt-1" style={{ fontSize: '0.7rem' }}>
-                Odmowy: 1h={deniedLast1h}, 24h={deniedLast24h}
-              </small>
-            </div>
-          </div>
-
-          <div className="col-lg-3 col-sm-6 col-12">
-            <div className="p-3 bg-black bg-opacity-20 border border-light border-opacity-5 rounded-3">
-              <span className="text-muted small block uppercase font-monospace">Baza Danych RBAC</span>
-              <strong className="text-white d-block mt-1 font-monospace" style={{ letterSpacing: '0.5px' }}>{dbEngineLabel}</strong>
-              <small className="text-info small block mt-1" style={{ fontSize: '0.7rem' }}>Logi: {diagnostics?.total_logs ?? 0}</small>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
       <style>{`
         @keyframes blink {

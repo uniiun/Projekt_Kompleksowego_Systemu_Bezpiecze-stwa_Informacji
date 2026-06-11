@@ -12,11 +12,13 @@ import ForbiddenPage from './pages/ForbiddenPage';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
+import InactivityTimeout from './components/InactivityTimeout';
 
 function App() {
   return (
     <BrowserRouter>
       <Navbar />
+      <InactivityTimeout />
       <div className="container mt-4 pb-5">
         <Routes>
           <Route path="/login" element={<LoginPage />} />

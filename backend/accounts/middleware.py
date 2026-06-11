@@ -1,5 +1,3 @@
-import json
-
 from django.http import JsonResponse
 from django.utils import timezone
 
@@ -35,9 +33,11 @@ class PasswordExpiryMiddleware:
         if self._is_exempt(request.path):
             return self.get_response(request)
 
-        if hasattr(request, "user") and request.user.is_authenticated:
+        user = self._resolve_user(request)
+
+        if user and user.is_authenticated:
             try:
-                profile = request.user.profile
+                profile = user.profile
                 if profile.password_changed_at:
                     days_since = (timezone.now() - profile.password_changed_at).days
                     if days_since >= 30:
@@ -52,6 +52,25 @@ class PasswordExpiryMiddleware:
                 pass
 
         return self.get_response(request)
+
+    def _resolve_user(self, request):
+        # Django AuthenticationMiddleware ustawia uzytkownika dla sesji,
+        # ale JWT jest parsowany przez DRF dopiero na poziomie widoku.
+        # Dlatego recznie wywolujemy JWTAuthentication jesli user jest anonimowy.
+        if hasattr(request, "user") and request.user.is_authenticated:
+            return request.user
+
+        try:
+            from rest_framework_simplejwt.authentication import JWTAuthentication
+
+            jwt_auth = JWTAuthentication()
+            result = jwt_auth.authenticate(request)
+            if result:
+                return result[0]
+        except Exception:
+            pass
+
+        return None
 
     def _is_exempt(self, path):
         for exempt in self.EXEMPT_PATHS:

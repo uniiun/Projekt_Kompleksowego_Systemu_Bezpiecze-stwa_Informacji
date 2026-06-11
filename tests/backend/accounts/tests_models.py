@@ -23,7 +23,7 @@ class ProfileModelTests(TestCase):
 
         self.assertTrue(user.profile.mfa_enabled)
         self.assertTrue(secret)
-        self.assertEqual(len(codes), 5)
+        self.assertEqual(len(codes), 6)
         self.assertTrue(all(len(code) == 8 for code in codes))
 
     def test_verify_otp_consumes_backup_code(self):

@@ -22,7 +22,7 @@ class MFAViewTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get("totp_secret"))
         self.assertTrue(response.data.get("mfa_enabled"))
-        self.assertEqual(len(response.data.get("backup_codes", [])), 5)
+        self.assertEqual(len(response.data.get("backup_codes", [])), 6)
 
     def test_disable_mfa_endpoint_clears_fields(self):
         self.user.profile.mfa_enabled = True

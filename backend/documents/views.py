@@ -126,7 +126,15 @@ class DocumentViewSet(viewsets.ModelViewSet):
         role = request.user.profile.role
         if role == "MANAGER":
             req_dept = request.data.get("department")
-            if str(req_dept) != str(request.user.profile.department.id):
+            manager_dept = request.user.profile.department
+            if manager_dept is None:
+                return Response(
+                    {
+                        "detail": "Twoje konto nie jest przypisane do żadnego działu. Skontaktuj się z administratorem."
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            if str(req_dept) != str(manager_dept.id):
                 return Response(
                     {"detail": "Możesz dodać dokument tylko do swojego działu."},
                     status=status.HTTP_403_FORBIDDEN,
