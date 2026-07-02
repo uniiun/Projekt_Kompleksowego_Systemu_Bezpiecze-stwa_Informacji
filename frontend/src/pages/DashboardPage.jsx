@@ -420,23 +420,23 @@ const DashboardPage = () => {
       {/* Cyber Diagnostics Dashboard Widget */}
       {role === 'ADMIN' && (
         <div className="card p-4 border border-light border-opacity-10 mt-4 overflow-hidden position-relative">
-          {/* Pulsing visual trace radar */}
-          <div className="position-absolute end-0 top-0 m-4 text-primary d-flex align-items-center gap-1.5 font-monospace small tracking-wider" style={{ opacity: 0.65 }}>
-            <span className="d-inline-block rounded-circle bg-success" style={{ width: '8px', height: '8px', boxShadow: '0 0 8px #10b981', animation: 'blink 1.5s infinite' }}></span>
-            NOD-ENFORCER: {diagnostics?.service_status || 'NIEDOSTĘPNE'}
-          </div>
-
-          <div className="d-flex justify-content-between align-items-center mb-3 border-bottom border-light border-opacity-10 pb-3">
+          <div className="d-flex justify-content-between align-items-center mb-3 border-bottom border-light border-opacity-10 pb-3 flex-wrap gap-3">
             <h5 className="text-white fw-bold d-flex align-items-center gap-2 m-0">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" className="me-1">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
               </svg>
               Konsola Diagnostyczna Tarczy Bezpieczeństwa
             </h5>
-            <button onClick={handleDownloadPdf} className="btn btn-sm btn-outline-success d-flex align-items-center gap-2 glass-panel-hover rounded-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Pobierz Raport (PDF)
-            </button>
+            <div className="d-flex align-items-center gap-4 flex-wrap">
+              <div className="text-primary d-flex align-items-center gap-2 font-monospace small tracking-wider" style={{ opacity: 0.65 }}>
+                <span className="d-inline-block rounded-circle bg-success" style={{ width: '8px', height: '8px', boxShadow: '0 0 8px #10b981', animation: 'blink 1.5s infinite' }}></span>
+                NOD-ENFORCER: {diagnostics?.service_status || 'NIEDOSTĘPNE'}
+              </div>
+              <button onClick={handleDownloadPdf} className="btn btn-sm btn-outline-success d-flex align-items-center gap-2 glass-panel-hover rounded-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Pobierz Raport (PDF)
+              </button>
+            </div>
           </div>
 
           {diagnosticsError && (
