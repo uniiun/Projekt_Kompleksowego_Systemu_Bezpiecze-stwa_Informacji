@@ -134,3 +134,5 @@ System opiera sie na nastepujacych rolach uzytkownikow:
 2. `INTERNAL` - Dostepny dla uzytkownikow z danego dzialu.
 3. `CONFIDENTIAL` - Dostepny dla administratora oraz menedzera wlasciwego dzialu.
 4. `SECRET` - Dostepny wylacznie dla administratora lub osob z indywidualnym uprawnieniem.
+
+---
