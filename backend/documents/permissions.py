@@ -25,6 +25,14 @@ class IsAuthorizedForDocument(permissions.BasePermission):
         if role == "ADMIN":
             return True
 
+        # ABAC (Attribute-Based Access Control) - Blokada dostepu poza godzinami pracy
+        if obj.confidentiality_level in ["CONFIDENTIAL", "SECRET"]:
+            from django.utils import timezone
+            # Zakladamy godziny biurowe 8:00 - 18:00
+            current_hour = timezone.localtime(timezone.now()).hour
+            if current_hour < 8 or current_hour >= 18:
+                return False
+
         # Pracownik i audytor nie moga edytowac ani usuwac
         if request.method in ["PUT", "PATCH", "DELETE"]:
             if role not in ["ADMIN", "MANAGER"]:

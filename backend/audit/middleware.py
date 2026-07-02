@@ -106,4 +106,26 @@ class AuditMiddleware(MiddlewareMixin):
                 message=f"Status HTTP: {response.status_code}",
             )
 
+            # Mini-SIEM: Detekcja Masowych Incydentow (Insider Threat)
+            if user and action in ["VIEW_DOCUMENT", "DOWNLOAD_DOCUMENT"]:
+                from django.utils import timezone
+                from datetime import timedelta
+                
+                one_min_ago = timezone.now() - timedelta(minutes=1)
+                recent_requests = AccessLog.objects.filter(user=user, created_at__gte=one_min_ago).count()
+                
+                if recent_requests > 15:
+                    AccessLog.objects.create(
+                        user=user,
+                        document=None,
+                        action="DLP_ALERT",
+                        success=False,
+                        ip_address=ip_address,
+                        message=f"SIEM ALERT: Zbyt szybki odczyt danych ({recent_requests} zapytan/min). Podejrzenie kradziezy masowej."
+                    )
+                    # Odciecie dostepu (kwarantanna)
+                    profile = user.profile
+                    profile.locked_until = timezone.now() + timedelta(minutes=15)
+                    profile.save()
+
         return response

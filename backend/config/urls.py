@@ -12,7 +12,7 @@ from accounts.views import (
     WebAuthnRegistrationOptionsView,
     WebAuthnRegistrationVerifyView,
 )
-from audit.views import AccessLogViewSet, SystemDiagnosticsView
+from audit.views import AccessLogViewSet, SystemDiagnosticsView, PDFExportView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -75,6 +75,7 @@ urlpatterns = [
     path(
         "api/diagnostics/", SystemDiagnosticsView.as_view(), name="system_diagnostics"
     ),
+    path("api/export-pdf/", PDFExportView.as_view(), name="export_pdf"),
     path("api/me/", CurrentUserView.as_view(), name="current_user"),
     path("api/", include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -170,3 +170,44 @@ class SystemDiagnosticsView(APIView):
                 "mfa_enabled_count": mfa_enabled_count,
             }
         )
+
+class PDFExportView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+    def get(self, request):
+        from django.http import HttpResponse
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import A4
+        from django.utils import timezone
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="raport_bezpieczenstwa_iso.pdf"'
+        
+        c = canvas.Canvas(response, pagesize=A4)
+        c.setFont("Helvetica-Bold", 16)
+        c.drawString(50, 800, "Raport Bezpieczenstwa Systemu (Zgodnosc z Normami ISO)")
+        
+        c.setFont("Helvetica", 12)
+        c.drawString(50, 770, f"Data wygenerowania: {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        c.drawString(50, 750, f"Wygenerowal: {request.user.username}")
+        
+        c.drawString(50, 720, "Ostatnie 50 Zdarzen Systemowych:")
+        y = 690
+        
+        logs = AccessLog.objects.order_by("-created_at")[:50]
+        for log in logs:
+            if y < 50:
+                c.showPage()
+                y = 800
+                c.setFont("Helvetica", 10)
+            
+            user_str = log.user.username if log.user else 'System'
+            status_str = 'SUKCES' if log.success else 'ODMOWA'
+            text = f"{log.created_at.strftime('%Y-%m-%d %H:%M:%S')} | {user_str} | {log.action} | {status_str}"
+            
+            c.setFont("Helvetica", 10)
+            c.drawString(50, y, text)
+            y -= 20
+            
+        c.save()
+        return response

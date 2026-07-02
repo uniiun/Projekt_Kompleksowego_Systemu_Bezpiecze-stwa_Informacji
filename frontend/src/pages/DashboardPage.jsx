@@ -127,6 +127,23 @@ const DashboardPage = () => {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    try {
+      const res = await apiClient.get('/export-pdf/', { responseType: 'blob' });
+      const blobUrl = URL.createObjectURL(res.data);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.setAttribute('download', 'raport_bezpieczenstwa_iso.pdf');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      alert('Błąd podczas generowania raportu PDF. Sprawdź konsole.');
+      console.error(err);
+    }
+  };
+
   // Define dynamic permission items based on the user's role
   const getPermissionSpecs = (r) => {
     const items = [
@@ -409,12 +426,18 @@ const DashboardPage = () => {
             NOD-ENFORCER: {diagnostics?.service_status || 'NIEDOSTĘPNE'}
           </div>
 
-          <h5 className="text-white fw-bold d-flex align-items-center gap-2 mb-3 border-bottom border-light border-opacity-10 pb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" className="me-1">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-            </svg>
-            Konsola Diagnostyczna Tarczy Bezpieczeństwa
-          </h5>
+          <div className="d-flex justify-content-between align-items-center mb-3 border-bottom border-light border-opacity-10 pb-3">
+            <h5 className="text-white fw-bold d-flex align-items-center gap-2 m-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" className="me-1">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              Konsola Diagnostyczna Tarczy Bezpieczeństwa
+            </h5>
+            <button onClick={handleDownloadPdf} className="btn btn-sm btn-outline-success d-flex align-items-center gap-2 glass-panel-hover rounded-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Pobierz Raport (PDF)
+            </button>
+          </div>
 
           {diagnosticsError && (
             <div className="alert alert-warning py-2 px-3 mb-3" role="alert" style={{ fontSize: '0.8rem' }}>

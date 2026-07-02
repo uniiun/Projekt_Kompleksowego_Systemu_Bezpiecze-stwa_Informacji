@@ -161,8 +161,12 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "AUTH_HEADER_TYPES": ("Bearer",),
     "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
 }
 
+# Blokchain / Merkle Tree Audit Logs Settings
+AUDIT_HASHING_ENABLED = True
+AUDIT_HASH_SECRET = "super-secret-blockchain-key-for-project"
 # WebAuthn (Windows Hello - odcisk palca)
 WEBAUTHN_RP_NAME = os.getenv("WEBAUTHN_RP_NAME", "SecureDocs")
 WEBAUTHN_RP_ID = os.getenv("WEBAUTHN_RP_ID", "localhost")

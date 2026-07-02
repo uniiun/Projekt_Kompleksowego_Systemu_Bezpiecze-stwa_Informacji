@@ -28,6 +28,9 @@ class Profile(models.Model):
     webauthn_enabled = models.BooleanField(default=False)
     # Data ostatniej zmiany hasla (wymog polityki zmiany co 30 dni)
     password_changed_at = models.DateTimeField(default=timezone.now)
+    # Mini-SIEM (Bruteforce Defense)
+    failed_login_attempts = models.PositiveIntegerField(default=0)
+    locked_until = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"

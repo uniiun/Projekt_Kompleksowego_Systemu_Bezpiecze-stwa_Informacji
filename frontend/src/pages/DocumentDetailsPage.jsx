@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import mammoth from 'mammoth';
+import CryptoJS from 'crypto-js';
 import apiClient from '../api/apiClient';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -116,10 +117,33 @@ const DocumentDetailsPage = () => {
 
   const handleDownload = async () => {
     try {
-      // Pobieranie odszyfrowanego pliku jako blob i inicjowanie pobierania
       const res = await apiClient.get(`/documents/${id}/download/`, { responseType: 'blob' });
-      const blobUrl = URL.createObjectURL(res.data);
-      const filename = doc.file ? doc.file.split('/').pop() : 'download';
+      let blobUrl;
+      let filename = doc.file ? doc.file.split('/').pop() : 'download';
+
+      if (filename.endsWith('.e2e')) {
+        // Zero-Knowledge Architecture Decryption
+        const text = await res.data.text();
+        const sessionKey = localStorage.getItem('access_token').substring(0, 32);
+        const decryptedBase64 = CryptoJS.AES.decrypt(text, sessionKey).toString(CryptoJS.enc.Utf8);
+        
+        // Convert data URL to Blob
+        const arr = decryptedBase64.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const decryptedBlob = new Blob([u8arr], { type: mime });
+        blobUrl = URL.createObjectURL(decryptedBlob);
+        // Remove .e2e suffix for downloading
+        filename = filename.replace('.e2e', '');
+      } else {
+        blobUrl = URL.createObjectURL(res.data);
+      }
+
       const link = document.createElement('a');
       link.href = blobUrl;
       link.setAttribute('download', filename);

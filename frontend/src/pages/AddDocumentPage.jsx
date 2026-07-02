@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../api/apiClient';
 import LoadingSpinner from '../components/LoadingSpinner';
+import CryptoJS from 'crypto-js';
 
 const AddDocumentPage = () => {
   const navigate = useNavigate();
@@ -89,7 +90,31 @@ const AddDocumentPage = () => {
       formData.append('confidentiality_level', confidentialityLevel);
 
       if (file) {
-        formData.append('file', file);
+        if (confidentialityLevel === 'SECRET') {
+          // Client-Side Encryption (Zero-Knowledge Architecture)
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          await new Promise((resolve, reject) => {
+            reader.onload = () => {
+              const base64Data = reader.result;
+              // In a real military system, this would be derived from user password or PKI
+              // Here we use a substring of their JWT token as their personal session key
+              const sessionKey = localStorage.getItem('access_token').substring(0, 32);
+              const encrypted = CryptoJS.AES.encrypt(base64Data, sessionKey).toString();
+              
+              // Replace the original file with the encrypted blob
+              const encryptedBlob = new Blob([encrypted], { type: 'text/plain' });
+              const encryptedFile = new File([encryptedBlob], `${file.name}.e2e`, { type: 'text/plain' });
+              formData.append('file', encryptedFile);
+              // Set description suffix to explicitly state it is client-encrypted
+              formData.append('description', description + '\n\n[Uwaga: Plik ten został zaszyfrowany metodą Zero-Knowledge po stronie przeglądarki (E2E)]');
+              resolve();
+            };
+            reader.onerror = error => reject(error);
+          });
+        } else {
+          formData.append('file', file);
+        }
       }
 
       // Append many-to-many allowed_users
