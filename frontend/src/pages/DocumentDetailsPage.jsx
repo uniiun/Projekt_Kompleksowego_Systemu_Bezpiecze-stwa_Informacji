@@ -292,6 +292,17 @@ const DocumentDetailsPage = () => {
               <span className="text-muted small d-block">Ostatnia modyfikacja:</span>
               <span className="text-white-50 small font-monospace">{new Date(doc.updated_at).toLocaleString('pl-PL')}</span>
             </div>
+            {doc.file && (
+              <div className="col-12 mt-3 pt-3 border-top border-light border-opacity-5">
+                <span className="text-muted small d-block mb-1">Integralność Pliku (Podpis SHA-256):</span>
+                <div className="d-flex align-items-center gap-2 bg-black bg-opacity-20 rounded p-2 border border-light border-opacity-10">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={doc.file_hash ? "#10b981" : "#64748b"} strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  <span className={`${doc.file_hash ? 'text-success' : 'text-muted'} font-monospace small`} style={{ letterSpacing: '0.5px', wordBreak: 'break-all' }}>
+                    {doc.file_hash || 'Brak podpisu (plik wgrany przed aktywacją mechanizmu)'}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Action Row */}
@@ -499,7 +510,19 @@ const DocumentDetailsPage = () => {
                   </h5>
                   <button type="button" className="btn-close btn-close-white" onClick={() => setShowPreviewModal(false)} aria-label="Zamknij"></button>
                 </div>
-                <div className="modal-body p-0 bg-black d-flex justify-content-center align-items-center" style={{ height: '75vh', overflow: 'hidden' }}>
+                <div className="modal-body p-0 bg-black d-flex justify-content-center align-items-center position-relative" style={{ height: '75vh', overflow: 'hidden' }}>
+                  
+                  {/* DLP Watermark Overlay */}
+                  {['CONFIDENTIAL', 'SECRET'].includes(doc?.confidentiality_level) && (
+                    <div className="dlp-watermark">
+                      <div className="dlp-watermark-text" style={{ pointerEvents: 'none' }}>
+                        DLP PROTECTED{'\n'}
+                        Użytkownik: {me?.email}{'\n'}
+                        Data: {new Date().toLocaleDateString()}
+                      </div>
+                    </div>
+                  )}
+
                   {(() => {
                     if (previewHtml) {
                       return (

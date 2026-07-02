@@ -130,6 +130,16 @@ class SystemDiagnosticsView(APIView):
         else:
             threat_level = "LOW"
 
+        dlp_events_last_24h = AccessLog.objects.filter(
+            action="DLP_ALERT", created_at__gte=last_24h
+        ).count()
+        dlp_total = AccessLog.objects.filter(action="DLP_ALERT").count()
+
+        from accounts.models import Profile
+        from django.contrib.auth.models import User
+        total_users = User.objects.count()
+        mfa_enabled_count = Profile.objects.filter(mfa_enabled=True).count()
+
         return Response(
             {
                 "service_status": "ONLINE",
@@ -153,5 +163,10 @@ class SystemDiagnosticsView(APIView):
                 "rbac_db_engine": db_engine,
                 "rbac_db_online": bool(db_engine),
                 "rbac_db_is_sqlite": db_is_sqlite,
+                "dlp_active": True,
+                "dlp_events_last_24h": dlp_events_last_24h,
+                "dlp_total": dlp_total,
+                "total_users": total_users,
+                "mfa_enabled_count": mfa_enabled_count,
             }
         )

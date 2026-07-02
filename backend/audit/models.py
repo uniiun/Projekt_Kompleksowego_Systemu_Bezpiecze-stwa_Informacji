@@ -23,6 +23,7 @@ class AccessLog(models.Model):
         ("USER_ACTIVATE", "Aktywacja użytkownika"),
         ("USER_DEACTIVATE", "Dezaktywacja użytkownika"),
         ("USER_RESET_MFA", "Reset MFA użytkownika"),
+        ("DLP_ALERT", "Incydent DLP"),
     ]
 
     user = models.ForeignKey(

@@ -154,16 +154,49 @@ class DocumentViewSet(viewsets.ModelViewSet):
             return restriction_error
         return super().partial_update(request, *args, **kwargs)
 
-    # Zapisanie dokumentu i zaszyfrowanie przeslanych plikow
     def perform_create(self, serializer):
         instance = serializer.save(created_by=self.request.user)
+        self._run_dlp_scan(instance)
         self._encrypt_file_if_present(instance)
 
     def perform_update(self, serializer):
         instance = serializer.save()
         # Szyfrowanie tylko jesli w tym zapytaniu przeslano nowy plik
         if "file" in self.request.FILES:
+            self._run_dlp_scan(instance)
             self._encrypt_file_if_present(instance)
+        else:
+            self._run_dlp_scan(instance, skip_file=True)
+
+    def _run_dlp_scan(self, instance, skip_file=False):
+        from audit.models import AccessLog
+        from .dlp import scan_document
+        
+        file_bytes = None
+        if not skip_file and instance.file:
+            try:
+                # Read raw bytes before encryption
+                with open(instance.file.path, "rb") as f:
+                    file_bytes = f.read()
+            except Exception:
+                pass
+                
+        result = scan_document(instance, file_bytes)
+        if result.get("has_sensitive_data"):
+            # Automatyczne podniesienie poufnosci dla bezpieczenstwa
+            if instance.confidentiality_level in ["PUBLIC", "INTERNAL"]:
+                instance.confidentiality_level = "CONFIDENTIAL"
+                instance.save(update_fields=["confidentiality_level"])
+                
+            types_str = ", ".join(result.get("types", []))
+            AccessLog.objects.create(
+                user=self.request.user,
+                document=instance,
+                action="DLP_ALERT",
+                success=True,
+                ip_address=self.request.META.get("REMOTE_ADDR"),
+                message=f"Skaner DLP wykrył dane wrażliwe: {types_str}. Zabezpieczono dokument jako POUFNY."
+            )
 
     def _encrypt_file_if_present(self, instance):
         # Szyfrowanie pliku na dysku za pomoca Fernet po pomyslnym zapisie
@@ -172,11 +205,16 @@ class DocumentViewSet(viewsets.ModelViewSet):
         try:
             with open(instance.file.path, "rb") as f:
                 raw = f.read()
+                
+            import hashlib
+            file_hash = hashlib.sha256(raw).hexdigest()
+            instance.file_hash = file_hash
+            
             encrypted = encrypt_bytes(raw)
             with open(instance.file.path, "wb") as f:
                 f.write(encrypted)
             instance.file_encrypted = True
-            instance.save(update_fields=["file_encrypted"])
+            instance.save(update_fields=["file_encrypted", "file_hash"])
         except Exception:
             pass
 

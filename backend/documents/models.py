@@ -22,6 +22,7 @@ class Document(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     file = models.FileField(upload_to="documents/", blank=True, null=True)
+    file_hash = models.CharField(max_length=64, blank=True, null=True)
     # Flaga informujaca o tym, ze plik jest zaszyfrowany na dysku
     file_encrypted = models.BooleanField(default=False)
     department = models.ForeignKey(

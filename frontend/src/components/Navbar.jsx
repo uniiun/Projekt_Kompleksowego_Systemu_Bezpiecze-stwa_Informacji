@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const Navbar = () => {
+const Navbar = ({ theme, toggleTheme }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { token, user, logout } = useAuth();
@@ -126,6 +126,15 @@ const Navbar = () => {
                   </div>
                 </div>
               </Link>
+
+              <button 
+                className="btn btn-sm btn-outline-light d-flex align-items-center justify-content-center p-2 align-self-start align-self-lg-center" 
+                onClick={toggleTheme}
+                title="Przełącz motyw"
+                style={{ width: '38px', height: '38px', borderRadius: '50%' }}
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
 
               <button className="btn btn-sm btn-outline-light d-flex align-items-center gap-1 py-2 px-3 align-self-start align-self-lg-center" onClick={handleLogout}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

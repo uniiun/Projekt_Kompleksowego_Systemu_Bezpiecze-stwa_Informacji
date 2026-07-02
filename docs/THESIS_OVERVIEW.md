@@ -41,3 +41,10 @@ najmniejszych uprawnien i rejestruje wszystkie zdarzenia dostepu.
 
 ## 10. Mapowanie wymagan
 - Tabela zgodnosci: `docs/REQUIREMENTS_TRACEABILITY.md`.
+
+## 11. Temat 11.4: Projekt Kompleksowego Systemu Bezpieczeństwa Informacji
+Projekt w pełni realizuje założenia kompleksowego bezpieczeństwa, w tym:
+- **Data Loss Prevention (DLP)**: Moduł skanowania treści (`dlp.py`), który automatycznie podnosi poufność dokumentów po wykryciu danych wrażliwych (PESEL, Karty płatnicze) oraz stosuje zabezpieczenie Visual DLP (znak wodny).
+- **Zarządzanie Estetyką (UI/UX)**: Implementacja zmiennego motywu Jasny/Ciemny (Dark/Light mode) poprawiająca ergonomię i użyteczność w różnych warunkach oświetleniowych, co wpływa pozytywnie na bezpieczeństwo pracy i zmniejsza ryzyko błędu ludzkiego.
+- **Konsola Diagnostyczna**: System w czasie rzeczywistym monitoruje zabezpieczenia i wyświetla statystyki incydentów na zintegrowanym Dashboardzie.
+- **Polityka DLP**: Udokumentowane procedury bezpieczeństwa: `docs/DLP_POLICY.md`.
